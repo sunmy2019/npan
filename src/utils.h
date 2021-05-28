@@ -1,4 +1,6 @@
-#include <fmt/format.h>
+#pragma once
+
+#include "npan.h"
 
 #define LEFT_SHIFT(number, n) (number << (8 * n))
 #define GET_TWO_BYTE(i) ((data[i] << 8) + data[i + 1])

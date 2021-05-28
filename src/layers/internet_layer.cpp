@@ -1,9 +1,8 @@
-#include "npan.h"
-#include "utils.h"
+#include "../utils.h"
 
 namespace npan
 {
-    void IPv4_handler(unsigned char *data, int length)
+    void IPv4_handler(unsigned char *data)
     {
         unsigned int header_length = (data[0] & 15) << 3;
         unsigned int total_length = GET_TWO_BYTE(2);
@@ -46,41 +45,41 @@ namespace npan
             return;
         }
 
-        transport_layer(&data[header_length], prot, total_length - header_length);
+        transport_layer(&data[header_length], prot, GET_FOUR_BYTE(12), GET_FOUR_BYTE(16), total_length - header_length);
     }
 
-    void IPv6_handler(unsigned char *data, int length)
+    void IPv6_handler(unsigned char *data)
     {
     }
 
-    void ARP_handler(unsigned char *data, int length)
+    void ARP_handler(unsigned char *data)
     {
     }
 
-    void RARP_handler(unsigned char *data, int length)
+    void RARP_handler(unsigned char *data)
     {
     }
 
-    void internet_layer(unsigned char *data, Protocal protocal, int length)
+    void internet_layer(unsigned char *data, Protocal protocal)
     {
         fmt::print("{:─^56}\n", " Internet layer ");
 
         switch (protocal)
         {
         case Protocal::IPV4:
-            IPv4_handler(data, length);
+            IPv4_handler(data);
             break;
 
         case Protocal::IPV6:
-            IPv6_handler(data, length);
+            IPv6_handler(data);
             break;
 
         case Protocal::ARP:
-            ARP_handler(data, length);
+            ARP_handler(data);
             break;
 
         case Protocal::RARP:
-            RARP_handler(data, length);
+            RARP_handler(data);
             break;
 
         default:
