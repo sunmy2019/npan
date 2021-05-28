@@ -1,4 +1,5 @@
 #include "npan.h"
+#include "utils.h"
 
 namespace npan
 {
@@ -8,10 +9,9 @@ namespace npan
         fmt::print("Destination MAC address: {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}\n", data[0], data[1], data[2], data[3], data[4], data[5]);
         fmt::print("Source      MAC address: {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}\n", data[6], data[7], data[8], data[9], data[10], data[11]);
 
-        unsigned int proto = (data[12] << 8) + data[13];
-        Protocal prot;
+                Protocal prot;
 
-        switch (proto)
+        switch (GET_TWO_BYTE(12))
         {
         case 0x0800:
             prot = Protocal::IPV4;
@@ -31,7 +31,7 @@ namespace npan
             break;
 
         default:
-            fmt::print("Unsupported protocal type {:04x}\n", (data[12] << 8) + data[13]);
+            fmt::print("Unsupported protocal type {:04x}\n", GET_TWO_BYTE(12));
             fmt::print("{:─^56}\n", "");
             return;
         }

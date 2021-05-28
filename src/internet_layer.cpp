@@ -1,12 +1,13 @@
 #include "npan.h"
+#include "utils.h"
 
 namespace npan
 {
     void IPv4_handler(unsigned char *data, int length)
     {
         unsigned int header_length = (data[0] & 15) << 3;
-        unsigned int total_length = (data[2] << 8) + data[3];
-        unsigned int flags_offset = (data[6] << 8) + data[7];
+        unsigned int total_length = GET_TWO_BYTE(2);
+        unsigned int flags_offset = GET_TWO_BYTE(6);
         Protocal prot = Protocal::UNKNOWN;
 
         fmt::print("IP Version {}\n", data[0] >> 4);
@@ -15,7 +16,7 @@ namespace npan
         // omit differentiated field: data[1]
 
         fmt::print("Total Length {} bytes\n", total_length);
-        fmt::print("Identification {}\n", (data[4] << 8) + data[5]);
+        fmt::print("Identification {}\n", GET_TWO_BYTE(4));
 
         // todo: handle flags and offsets
 
@@ -45,7 +46,7 @@ namespace npan
             return;
         }
 
-        // transport_layer(&data[header_length], prot, total_length - header_length);
+        transport_layer(&data[header_length], prot, total_length - header_length);
     }
 
     void IPv6_handler(unsigned char *data, int length)
