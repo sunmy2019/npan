@@ -1,5 +1,3 @@
-
-
 #include "npan.h"
 
 int main()
