@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fmt/format.h>
+#include <vector>
 
 namespace npan
 {
@@ -12,7 +13,7 @@ namespace npan
 
     void transport_layer(unsigned char *data, Protocal, uint64_t source_ip, uint64_t dest_ip, int length);
 
-    void application_layer(std::unique_ptr<std::string> *data, Protocal, int length);
+    void application_layer(std::unique_ptr<std::vector<unsigned char>> data, Protocal, int length);
 
     // main entry point
     void inline analyze_packet(unsigned char *data, int length)

@@ -17,11 +17,11 @@ namespace npan
 
         unsigned int init_seq;
         unsigned int init_ack;
-        std::string buffer;
+        std::vector<unsigned char> buffer;
 
         void flush_buffer()
         {
-            
+            application_layer(std::make_unique<std::vector<unsigned char>>(std::move(buffer)), Protocal::UNKNOWN, 0);
         }
     };
 
@@ -45,9 +45,10 @@ namespace npan
         // look up connection first
 
         // create a connection if connection not exist. Use the TCP connection rules. (Handshakes)
+        // close the connection according to the rules.
 
         // if the payload_length == 1440, write into the correct position of the buffer
-        // otherwise flush the buffer to s.
+        // otherwise flush the buffer.
     }
 
     void UDP_handler(unsigned char *data, uint64_t source_ip, uint64_t dest_ip, int length)
