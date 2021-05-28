@@ -1,5 +1,5 @@
 #include "npan.h"
-
+#include <iostream>
 int main()
 {
     unsigned char data[] = {0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x08,
@@ -8,4 +8,9 @@ int main()
                             0x21, 0x81, 0x9e, 0x7f, 0x2b, 0x89, 0x96, 0x50, 0x10, 0x20, 0x90, 0xcf, 0xb5,
                             0x00, 0x00, 0x00};
     npan::analyze_packet(&data[0], 55);
+    unsigned char *buf = new unsigned char[1024];
+    auto length = npan::read_packet_from_file("packets.txt", buf);
+    
+    npan::output_packet_to_console(buf, length);
+    npan::analyze_packet(buf, length);
 }

@@ -6,7 +6,7 @@ namespace npan
     {
         fmt::print("{:─^56}\n", " Physical layer ");
         fmt::print("Destination MAC address: {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}\n", data[0], data[1], data[2], data[3], data[4], data[5]);
-        fmt::print("Source      MAC address: {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}\n", data[6], data[7], data[8], data[9], data[10], data[11]);
+        fmt::print("Source MAC address:      {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}\n", data[6], data[7], data[8], data[9], data[10], data[11]);
 
                 Protocal prot;
 

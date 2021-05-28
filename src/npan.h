@@ -7,6 +7,10 @@ namespace npan
 {
     enum class Protocal;
 
+    size_t read_packet_from_file(const char *filename, unsigned char *buffer);
+
+    void output_packet_to_console(const unsigned char *packet, int length);
+
     void physical_layer(unsigned char *data);
 
     void internet_layer(unsigned char *data, Protocal);

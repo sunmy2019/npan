@@ -36,7 +36,7 @@ namespace npan
             break;
         }
 
-        fmt::print("Source      IP address: {}.{}.{}.{}\n", data[12], data[13], data[14], data[15]);
+        fmt::print("Source IP address:      {}.{}.{}.{}\n", data[12], data[13], data[14], data[15]);
         fmt::print("Destination IP address: {}.{}.{}.{}\n", data[16], data[17], data[18], data[19]);
 
         if (__builtin_expect(prot == Protocal::UNKNOWN, 0))
