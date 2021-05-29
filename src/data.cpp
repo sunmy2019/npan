@@ -19,8 +19,8 @@ namespace npan
     std::vector<Packet> read_packet_from_file(const char *filename)
     {
         std::vector<Packet> rt;
-        unsigned char *buf = new unsigned char[65536];
-        unsigned char *buffer;
+        u_char *buf = new u_char[65536];
+        u_char *buffer;
 
         std::ifstream inputFile(filename);
         auto iter = std::istreambuf_iterator<char>(inputFile);
@@ -34,7 +34,7 @@ namespace npan
             buffer = buf;
             int current_position = 0;
             char current_character = 0;
-            unsigned char tmp;
+            u_char tmp;
             while (iter != std::istreambuf_iterator<char>() && *iter != '\n')
             {
                 current_character = ('0' <= *iter && *iter <= '9') ? (*iter - '0') : (('a' <= *iter && *iter <= 'f') ? (*iter - 'a' + 10) : (*iter - 'A' + 10));
@@ -52,7 +52,7 @@ namespace npan
                 ++iter;
             }
             current_position /= 2;
-            unsigned char *data = new unsigned char[current_position + 1];
+            u_char *data = new u_char[current_position + 1];
             memcpy(data, buf, current_position);
             rt.emplace_back(data, current_position);
         }
@@ -60,7 +60,7 @@ namespace npan
         return rt;
     }
 
-    void output_packet_to_console(const unsigned char *packet, int length)
+    void output_packet_to_console(const u_char *packet, int length)
     {
         for (int i = 0; i < length; ++i)
         {
@@ -69,7 +69,7 @@ namespace npan
         fmt::print("\n");
     }
 
-    void dump_packet_to_file(FILE *file, const unsigned char *packet, int length)
+    void dump_packet_to_file(FILE *file, const u_char *packet, int length)
     {
         for (int i = 0; i < length; ++i)
         {

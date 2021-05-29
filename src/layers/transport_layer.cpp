@@ -3,12 +3,14 @@
 #include <map>
 namespace npan
 {
+    
+    
     struct TCP_connection
     {
         uint64_t source_ip;
-        unsigned int source_port;
+        u_int source_port;
         uint64_t dest_ip;
-        unsigned int dest_port;
+        u_int dest_port;
 
         TCP_connection get_conjugate()
         {
@@ -19,45 +21,45 @@ namespace npan
 
     struct TCP_connection_status
     {
-        unsigned int init_seq;
-        unsigned int init_ack;
+        u_int init_seq;
+        u_int init_ack;
         bool started = 0;
         bool finished = 0;
         uint32_t buffer_start_seq = 0; // absolute
-        std::vector<unsigned char> buffer;
+        std::vector<u_char> buffer;
 
         void flush_buffer()
         {
-            buffer_start_seq = 0;
-            application_layer(std::make_unique<std::vector<unsigned char>>(std::move(buffer)), Protocal::UNKNOWN, 0);
+            buffer_start_seq += buffer.size();
+            application_layer(std::make_unique<std::vector<u_char>>(std::move(buffer)), Protocal::UNKNOWN, 0);
         }
     };
 
     static std::map<TCP_connection, TCP_connection_status> tcp_map;
 
-    void TCP_handler(unsigned char *data, uint64_t source_ip, uint64_t dest_ip, unsigned int length)
+    void TCP_handler(u_char *data, uint64_t source_ip, uint64_t dest_ip, u_int length)
     {
         // output_packet_to_console(data, length);
 
-        unsigned int source_port = GET_TWO_BYTE(0);
-        unsigned int dest_port = GET_TWO_BYTE(2);
+        u_int source_port = GET_TWO_BYTE(0);
+        u_int dest_port = GET_TWO_BYTE(2);
         uint32_t seq = GET_FOUR_BYTE(4);
         uint32_t ack = GET_FOUR_BYTE(8);
         uint32_t init_seq = 0;
         uint32_t init_ack = 0;
 
-        std::vector<unsigned char> *buffer = nullptr;
+        std::vector<u_char> *buffer = nullptr;
         uint32_t *buffer_start_seq = nullptr;
 
-        unsigned int flag = GET_TWO_BYTE(12);
+        u_int flag = GET_TWO_BYTE(12);
 
-        unsigned int header_length = (flag & 0xf000) >> 10; // in bytes
+        u_int header_length = (flag & 0xf000) >> 10; // in bytes
 
         flag &= 0x0fff;
 
         uint32_t payload_length = length - header_length;
 
-        unsigned int window = GET_TWO_BYTE(14);
+        u_int window = GET_TWO_BYTE(14);
 
         TCP_connection tcps{source_ip, source_port, dest_ip, dest_port};
         TCP_connection tcpr = tcps.get_conjugate();
@@ -92,6 +94,14 @@ namespace npan
             init_ack = tcp_map[tcps].init_ack;
             init_seq = tcp_map[tcps].init_seq;
 
+            if (tcp_map[tcpr].finished && tcp_map[tcps].finished) [[unlikely]]
+            { // if both finished, remove both tcps and tcpr
+                tcp_map.erase(tcps);
+                tcp_map.erase(tcpr);
+                fmt::print("Connection closed\n");
+                break;
+            }
+
             if (!tcp_map[tcps].started) [[unlikely]]
             { // third handshake
                 assert(ack == init_ack + 1);
@@ -103,8 +113,8 @@ namespace npan
             buffer_start_seq = &tcp_map[tcps].buffer_start_seq;
             buffer = &tcp_map[tcps].buffer;
 
-            if (*buffer_start_seq == 0) // first part
-                *buffer_start_seq = seq;
+            if (*buffer_start_seq == 0) [[unlikely]] // first arrival of this tcp connection
+                *buffer_start_seq = init_seq + 1;
 
             if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
                 buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
@@ -122,8 +132,8 @@ namespace npan
             buffer_start_seq = &tcp_map[tcps].buffer_start_seq;
             buffer = &tcp_map[tcps].buffer;
 
-            if (*buffer_start_seq == 0) // first part
-                *buffer_start_seq = seq;
+            if (*buffer_start_seq == 0) [[unlikely]] // first arrival of this tcp connection
+                *buffer_start_seq = init_seq + 1;
 
             if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
                 buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
@@ -134,16 +144,12 @@ namespace npan
         case 0x11: // FIN, ACK
             fmt::print("Flag: FIN, ACK\n");
 
-            // here we assumes when FIN is recieved, both tcp_connection exists. may change later to be more rubost
-            if (tcp_map[tcpr].finished)
-            { // if both finished, remove both tcps and tcpr
-                tcp_map.erase(tcps);
-                tcp_map.erase(tcpr);
-            }
-            else
-            { // otherwise set a finish mark
-                tcp_map[tcps].finished = 1;
-            }
+            // set a finish mark
+            tcp_map[tcps].finished = 1;
+
+            init_ack = tcp_map[tcps].init_ack;
+            init_seq = tcp_map[tcps].init_seq;
+
             break;
 
         default:
@@ -162,11 +168,11 @@ namespace npan
             fmt::print("{:─^56}\n", "");
     }
 
-    void UDP_handler(unsigned char *data, uint64_t source_ip, uint64_t dest_ip, int length)
+    void UDP_handler(u_char *data, uint64_t source_ip, uint64_t dest_ip, int length)
     {
     }
 
-    void transport_layer(unsigned char *data, Protocal protocal, uint64_t source_ip, uint64_t dest_ip, unsigned int length)
+    void transport_layer(u_char *data, Protocal protocal, uint64_t source_ip, uint64_t dest_ip, u_int length)
     {
         fmt::print("{:─^56}\n", " Transport layer ");
         switch (protocal)

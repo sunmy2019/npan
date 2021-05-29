@@ -2,11 +2,11 @@
 
 namespace npan
 {
-    void IPv4_handler(unsigned char *data)
+    void IPv4_handler(u_char *data)
     {
-        unsigned int header_length = (data[0] & 15) << 2;
-        unsigned int total_length = GET_TWO_BYTE(2);
-        unsigned int flags_offset = GET_TWO_BYTE(6);
+        u_int header_length = (data[0] & 15) << 2;
+        u_int total_length = GET_TWO_BYTE(2);
+        u_int flags_offset = GET_TWO_BYTE(6);
         Protocal prot = Protocal::UNKNOWN;
 
         fmt::print("IP Version {}\n", data[0] >> 4);
@@ -48,19 +48,19 @@ namespace npan
         transport_layer(&data[header_length], prot, GET_FOUR_BYTE(12), GET_FOUR_BYTE(16), total_length - header_length);
     }
 
-    void IPv6_handler(unsigned char *data)
+    void IPv6_handler(u_char *data)
     {
     }
 
-    void ARP_handler(unsigned char *data)
+    void ARP_handler(u_char *data)
     {
     }
 
-    void RARP_handler(unsigned char *data)
+    void RARP_handler(u_char *data)
     {
     }
 
-    void internet_layer(unsigned char *data, Protocal protocal)
+    void internet_layer(u_char *data, Protocal protocal)
     {
         fmt::print("{:─^56}\n", " Internet layer ");
 
