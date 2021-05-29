@@ -135,6 +135,7 @@ namespace npan
             break;
 
         case 0x18: // ACK, PUSH
+
             fmt::print("Flag: ACK, PUSH\n");
 
             init_ack = tcp_map[tcps].init_ack;
@@ -195,7 +196,6 @@ namespace npan
             break;
 
         default:
-
             break;
         }
 
