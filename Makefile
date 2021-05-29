@@ -1,20 +1,20 @@
-physical_layer: 
-	g++-11 -std=c++20 -O3 -c src/layers/physical_layer.cpp -o build/physical_layer.o
+VPATH = src:build
 
-internet_layer: 
-	g++-11 -std=c++20 -O3 -c src/layers/internet_layer.cpp -o build/internet_layer.o
+.SUFFIXES: .cpp
 
-transport_layer: 
-	g++-11 -std=c++20 -O3 -c src/layers/transport_layer.cpp -o build/transport_layer.o
+builddir:
+	mkdir -p build/layers
 
-application_layer:
-	g++-11 -std=c++20 -O3 -c src/layers/application_layer.cpp -o build/application_layer.o
+.cpp.o:
+	g++-11 -std=c++20 -O3 -c $^ -o build/$*.o
 
-data:
-	g++-11 -std=c++20 -O3 -c src/data.cpp -o build/data.o
+OBJS = layers/physical_layer.o layers/internet_layer.o layers/transport_layer.o layers/application_layer.o ./data.o ./main.o
 
-npan: data physical_layer internet_layer transport_layer application_layer
-	g++-11 -std=c++20 -O3 src/main.cpp build/data.o build/physical_layer.o build/internet_layer.o build/transport_layer.o build/application_layer.o -o build/main -lfmt
+object: builddir $(OBJS)
+
+npan:  object
+	g++-11 $(addprefix build/,$(OBJS)) -o build/main -lfmt
+	
 
 run: npan
 	build/main example_input.txt

@@ -3,8 +3,8 @@
 #include <map>
 namespace npan
 {
-    
-    
+    static uint global_tcp_stream_no = 1;
+
     struct TCP_connection
     {
         uint64_t source_ip;
@@ -21,6 +21,7 @@ namespace npan
 
     struct TCP_connection_status
     {
+        u_int tcp_stream_no;
         u_int init_seq;
         u_int init_ack;
         bool started = 0;
@@ -31,7 +32,7 @@ namespace npan
         void flush_buffer()
         {
             buffer_start_seq += buffer.size();
-            application_layer(std::make_unique<std::vector<u_char>>(std::move(buffer)), Protocal::UNKNOWN, 0);
+            application_layer(std::make_unique<std::vector<u_char>>(std::move(buffer)), Protocal::UNKNOWN, tcp_stream_no, 0);
         }
     };
 
@@ -69,8 +70,9 @@ namespace npan
         case 0x02: // SYNC
             fmt::print("Flag: SYNC\n");
             // first handshake
-            tcp_map[tcps] = TCP_connection_status{seq, 0};
-            tcp_map[tcpr] = TCP_connection_status{0, seq};
+            tcp_map[tcps] = TCP_connection_status{global_tcp_stream_no, seq, 0};
+            tcp_map[tcpr] = TCP_connection_status{global_tcp_stream_no, 0, seq};
+            ++global_tcp_stream_no;
             init_ack = ack;
             init_seq = seq;
             break;
@@ -116,6 +118,13 @@ namespace npan
             if (*buffer_start_seq == 0) [[unlikely]] // first arrival of this tcp connection
                 *buffer_start_seq = init_seq + 1;
 
+            if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
+            {
+                fmt::print("Package arrived after its buffer being pushed\n");
+                fmt::print("{:─^56}\n", "");
+                return;
+            }
+
             if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
                 buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
             // output_packet_to_console(&data[header_length], payload_length);
@@ -135,6 +144,13 @@ namespace npan
             if (*buffer_start_seq == 0) [[unlikely]] // first arrival of this tcp connection
                 *buffer_start_seq = init_seq + 1;
 
+            if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
+            {
+                fmt::print("Package arrived after its buffer being pushed\n");
+                fmt::print("{:─^56}\n", "");
+                return;
+            }
+
             if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
                 buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
             // output_packet_to_console(&data[header_length], payload_length);
@@ -150,6 +166,9 @@ namespace npan
             init_ack = tcp_map[tcps].init_ack;
             init_seq = tcp_map[tcps].init_seq;
 
+            break;
+        case 0x04:
+            fmt::print("Flag: RST\n");
             break;
 
         default:
