@@ -16,6 +16,7 @@ namespace npan
         {
             return {dest_ip, dest_port, source_ip, source_port};
         }
+
         friend std::strong_ordering operator<=>(const TCP_connection &, const TCP_connection &) = default;
     };
 
@@ -32,7 +33,8 @@ namespace npan
         void flush_buffer()
         {
             buffer_start_seq += buffer.size();
-            application_layer(std::make_unique<std::vector<u_char>>(std::move(buffer)), Protocal::UNKNOWN, tcp_stream_no, 0);
+            // move the whole buffer into application layer
+            application_layer(std::move(buffer), tcp_stream_no, Protocal::UNKNOWN);
         }
     };
 
@@ -49,12 +51,11 @@ namespace npan
         uint32_t init_seq = 0;
         uint32_t init_ack = 0;
 
+        u_int flag = GET_TWO_BYTE(12);
+        u_int header_length = (flag & 0xf000) >> 10; // in bytes
+
         std::vector<u_char> *buffer = nullptr;
         uint32_t *buffer_start_seq = nullptr;
-
-        u_int flag = GET_TWO_BYTE(12);
-
-        u_int header_length = (flag & 0xf000) >> 10; // in bytes
 
         flag &= 0x0fff;
 
@@ -191,9 +192,11 @@ namespace npan
                 memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
             }
             break;
-        case 0x04:
+
+        case 0x04: // RST
             fmt::print("Flag: RST\n");
-            break;
+            fmt::print("{:─^56}\n", "");
+            return;
 
         default:
             break;
@@ -201,8 +204,11 @@ namespace npan
 
         fmt::print("Relative seq {}, Absolute seq {}\n", seq - init_seq, seq);
         fmt::print("Relative ack {}, Absolute ack {}\n", ack - init_ack, ack);
-
+        fmt::print("Source port:      {}\n", source_port);
+        fmt::print("Destination port: {}\n", dest_port);
+        fmt::print("Header length  {} bytes\n", header_length);
         fmt::print("Payload length {} bytes\n", payload_length);
+        fmt::print("Window size    {} bytes\n", window);
 
         if (flag == 0x18) // PUSH
             tcp_map[tcps].flush_buffer();

@@ -25,7 +25,11 @@ namespace npan
 
     void transport_layer(u_char *data, Protocal, uint64_t source_ip, uint64_t dest_ip, u_int length);
 
-    void application_layer(std::unique_ptr<std::vector<u_char>> data, Protocal, u_int stream_no, u_int length);
+    void application_layer(std::vector<u_char> data,  u_int stream_no, Protocal);
+
+    void application_layer(Packet packet,  u_int stream_no);
+
+
 
     // main entry point
     void inline analyze_packet(u_char *data, int length)

@@ -9,12 +9,12 @@ namespace npan
         u_int flags_offset = GET_TWO_BYTE(6);
         Protocal prot = Protocal::UNKNOWN;
 
-        fmt::print("IP Version {}\n", data[0] >> 4);
+        fmt::print("IP version {}\n", data[0] >> 4);
 
-        fmt::print("Header Length {} bytes\n", header_length);
+        fmt::print("Header length {} bytes\n", header_length);
         // omit differentiated field: data[1]
 
-        fmt::print("Total Length {} bytes\n", total_length);
+        fmt::print("Total length {} bytes\n", total_length);
         fmt::print("Identification {}\n", GET_TWO_BYTE(4));
 
         // todo: handle flags and offsets
