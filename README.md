@@ -16,8 +16,8 @@ Currently I only implemented the following protocals:
 ### Transport Layer
 
 * TCP
-* UDP(TODO)
+* UDP (TODO)
 
 ### Application Layer
 
-* TLSv1.2(TODO)
+* TLSv1.2 (TODO)

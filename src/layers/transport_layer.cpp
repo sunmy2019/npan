@@ -3,7 +3,7 @@
 #include <map>
 namespace npan
 {
-    static uint global_tcp_stream_no = 1;
+    static uint global_tcp_stream_no = 0;
 
     struct TCP_connection
     {
@@ -71,9 +71,8 @@ namespace npan
         case 0x02: // SYNC
             fmt::print("Flag: SYNC\n");
             // first handshake
-            tcp_map[tcps] = TCP_connection_status{global_tcp_stream_no, seq, 0};
-            tcp_map[tcpr] = TCP_connection_status{global_tcp_stream_no, 0, seq};
-            ++global_tcp_stream_no;
+            tcp_map[tcps] = TCP_connection_status{++global_tcp_stream_no, seq, 0};
+            tcp_map[tcpr] = TCP_connection_status{++global_tcp_stream_no, 0, seq};
             init_ack = ack;
             init_seq = seq;
             break;

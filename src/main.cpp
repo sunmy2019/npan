@@ -21,12 +21,9 @@ int main(int argc, char *argv[])
 
     std::vector<npan::Packet> vec_pac = npan::read_packet_from_file(argv[1]);
 
-    FILE *out = fopen("out.txt", "w");
-
     for (auto &pac : vec_pac)
     {
         npan::output_packet_to_console(pac.data, pac.length);
         npan::analyze_packet(pac.data, pac.length);
-        npan::dump_packet_to_file(out, pac.data, pac.length);
     }
 }
