@@ -215,8 +215,9 @@ namespace npan
     {
     }
 
-    void ICMPv6(u_char *data, IPv6_addr source_ip, IPv6_addr dest_ip, int length)
+    void ICMPv6_handler(u_char *data, IPv6_addr source_ip, IPv6_addr dest_ip, int length)
     {
+        fmt::print("{:─^56}\n", "");
     }
 
     template <IP_ver V>
@@ -234,7 +235,10 @@ namespace npan
             break;
 
         case Protocal::ICMPv6:
-            UDP_handler(data, source_ip, dest_ip, length);
+            if constexpr (std::is_same_v<IP_addr<V>, IPv6_addr>)
+                ICMPv6_handler(data, source_ip, dest_ip, length);
+            else
+                fmt::print("{:─^56}\n", "");
             break;
 
         default:
