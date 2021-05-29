@@ -1,19 +1,30 @@
 VPATH = src:build
 
+OBJS = layers/physical_layer.o layers/internet_layer.o layers/transport_layer.o layers/application_layer.o ./data.o ./main.o
+
+DEBUG ?= 1
+ifeq ($(DEBUG), 1)
+    COMPFLAGS = -g -fsanitize=address
+	LINKFLAGS = -lfmt -lasan
+else
+    COMPFLAGS = -O3
+	LINKFLAGS = -lfmt
+endif
+
 .SUFFIXES: .cpp
+
+.cpp.o:
+	g++-11 -std=c++20 -Wall $(COMPFLAGS) -c $^ -o build/$*.o 
+
+.: npan
 
 builddir:
 	mkdir -p build/layers
 
-.cpp.o:
-	g++-11 -std=c++20 -Wall -O3 -c $^ -o build/$*.o
-
-OBJS = layers/physical_layer.o layers/internet_layer.o layers/transport_layer.o layers/application_layer.o ./data.o ./main.o
-
 object: builddir $(OBJS)
 
 npan:  object
-	g++-11 $(addprefix build/,$(OBJS)) -o build/main -lfmt
+	g++-11 $(addprefix build/,$(OBJS)) -o build/main $(LINKFLAGS)
 	
 
 run: npan
@@ -21,5 +32,3 @@ run: npan
 
 clean:
 	rm -r build/
-
-.: npan

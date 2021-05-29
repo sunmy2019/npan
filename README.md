@@ -14,14 +14,17 @@ Currently I only implemented the following protocals:
 
 * IPv4
 * IPv6
-* ARP (TODO)
 
 ### Transport Layer
 
 * TCP
-* UDP (TODO)
-* ICMPv6 (TODO)
 
 ### Application Layer
 
-Since we can only guess about the protocal unless we are notified in some ways. The plan is put until someday I am interested.
+Since we can only guess about the protocal unless we are notified in some ways. One feasible plan is to try match a pattern.
+
+I developed it using 2 days. Now the development is put until someday I am available. At that time, I will develop in the order:
+
+1. UDP
+2. ARP
+3. 
