@@ -18,7 +18,8 @@ Currently I only implemented the following protocals:
 
 * TCP
 * UDP (TODO)
+* ICMPv6 (TODO)
 
 ### Application Layer
 
-* TLSv1.2 (TODO)
+Since we can only guess about the protocal unless we are notified in some ways. The plan is put until someday I am interested.

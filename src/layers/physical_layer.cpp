@@ -16,7 +16,7 @@ namespace npan
             prot = Protocal::IPV4;
             fmt::print("Protocal type: IPv4\n");
             break;
-        case 0x86DD:
+        case 0x86dd:
             prot = Protocal::IPV6;
             fmt::print("Protocal type: IPv6\n");
             break;

@@ -34,7 +34,7 @@ namespace npan
             buffer = buf;
             int current_position = 0;
             char current_character = 0;
-            u_char tmp;
+            u_char tmp = 0;
             while (iter != std::istreambuf_iterator<char>() && *iter != '\n')
             {
                 current_character = ('0' <= *iter && *iter <= '9') ? (*iter - '0') : (('a' <= *iter && *iter <= 'f') ? (*iter - 'a' + 10) : (*iter - 'A' + 10));

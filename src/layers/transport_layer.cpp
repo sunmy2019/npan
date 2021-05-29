@@ -23,11 +23,11 @@ namespace npan
         }
     };
 
-    template <IP_version Ver>
+    template <IP_ver Ver>
     static std::map<Connection<Protocal::TCP, Ver>, TCP_connection_status> tcp_map; // records the connection
 
-    template <IP_version Ver>
-    void TCP_handler(u_char *data, IP_address<Ver> source_ip, IP_address<Ver> dest_ip, u_int length)
+    template <IP_ver Ver>
+    void TCP_handler(u_char *data, IP_addr<Ver> source_ip, IP_addr<Ver> dest_ip, u_int length)
     {
         using TCP_connection = Connection<Protocal::TCP, Ver>;
         // output_packet_to_console(data, length);
@@ -210,13 +210,17 @@ namespace npan
             fmt::print("{:─^56}\n", "");
     }
 
-    template <IP_version V>
-    void UDP_handler(u_char *data, IP_address<V> source_ip, IP_address<V> dest_ip, int length)
+    template <IP_ver V>
+    void UDP_handler(u_char *data, IP_addr<V> source_ip, IP_addr<V> dest_ip, int length)
     {
     }
 
-    template <IP_version V>
-    void transport_layer(u_char *data, Protocal protocal, IP_address<V> source_ip, IP_address<V> dest_ip, u_int length)
+    void ICMPv6(u_char *data, IPv6_addr source_ip, IPv6_addr dest_ip, int length)
+    {
+    }
+
+    template <IP_ver V>
+    void transport_layer(u_char *data, Protocal protocal, IP_addr<V> source_ip, IP_addr<V> dest_ip, u_int length)
     {
         fmt::print("{:─^56}\n", " Transport layer ");
         switch (protocal)
@@ -229,15 +233,17 @@ namespace npan
             UDP_handler(data, source_ip, dest_ip, length);
             break;
 
+        case Protocal::ICMPv6:
+            UDP_handler(data, source_ip, dest_ip, length);
+            break;
+
         default:
             fmt::print("{:─^56}\n", "");
             break;
         }
     }
 
-    template void transport_layer(u_char *data, Protocal protocal, IP_address<IP_version::FOUR> source_ip,
-                                  IP_address<IP_version::FOUR> dest_ip, u_int length);
-    template void transport_layer(u_char *data, Protocal protocal, IP_address<IP_version::SIX> source_ip,
-                                  IP_address<IP_version::SIX> dest_ip, u_int length);
+    template void transport_layer(u_char *data, Protocal protocal, IPv4_addr source_ip, IPv4_addr dest_ip, u_int length);
+    template void transport_layer(u_char *data, Protocal protocal, IPv6_addr source_ip, IPv6_addr dest_ip, u_int length);
 
 } // namespace npan

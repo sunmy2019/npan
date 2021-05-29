@@ -4,7 +4,7 @@ bin-release/
 build/
 [Oo]bj/
 [Bb]in/
-.vscode/*
+.vscode/
 
 # Other files and folders
 .settings/
