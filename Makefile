@@ -6,7 +6,7 @@ builddir:
 	mkdir -p build/layers
 
 .cpp.o:
-	g++-11 -std=c++20 -O3 -c $^ -o build/$*.o
+	g++-11 -std=c++20 -Wall -O3 -c $^ -o build/$*.o
 
 OBJS = layers/physical_layer.o layers/internet_layer.o layers/transport_layer.o layers/application_layer.o ./data.o ./main.o
 

@@ -30,10 +30,14 @@ namespace npan
             fmt::print("{:─^56}\n", "");
             return;
         }
-        
+
         // fmt::print("{:─^56}\n", "");
 
         internet_layer(&data[14], prot);
     }
 
+    void analyze_packet(u_char *data, int length)
+    {
+        physical_layer(data);
+    }
 } // namespace npan

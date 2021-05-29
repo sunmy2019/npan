@@ -7,16 +7,56 @@
 #define GET_FOUR_BYTE(i) ((data[i] << 24) | (data[i + 1] << 16) | (data[i + 2] << 8) | data[i + 3])
 namespace npan
 {
+    // internal interface of npan
+
+    // about the protocals
+    enum class Protocal
+    {
+        // physical layer
+        ETHERNET,
+        // Internet layer
+        IPV4,
+        IPV6,
+        ARP,
+        // Transport layer
+        TCP,
+        UDP,
+        // Application layer
+        HTTP,
+        TLSv2,
+        // Fallback
+        UNKNOWN
+    };
+
     enum class IP_version
     {
         FOUR,
         SIX
     };
 
+    void physical_layer(u_char *data);
+
+    void internet_layer(u_char *data, Protocal);
+
+    template <IP_version v>
+    struct IP_address;
+
+    template <Protocal P, IP_version V>
+    struct Connection;
+
+    template <IP_version V>
+    void transport_layer(u_char *data, Protocal, IP_address<V> source_ip, IP_address<V> dest_ip, u_int length);
+
+    void application_layer(std::vector<u_char> data, u_int tcp_stream_no, Protocal);
+
+    template <IP_version V>
+    void application_layer(std::vector<u_char> data, Connection<Protocal::UDP, V>, Protocal);
+
     template <>
     struct IP_address<IP_version::FOUR>
     {
         uint32_t first;
+        friend std::strong_ordering operator<=>(const IP_address &, const IP_address &) = default;
     };
 
     template <>
@@ -24,6 +64,7 @@ namespace npan
     {
         uint64_t first;
         uint64_t last;
+        friend std::strong_ordering operator<=>(const IP_address &, const IP_address &) = default;
     };
 
     template <Protocal P, IP_version V>

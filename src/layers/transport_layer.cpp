@@ -24,7 +24,7 @@ namespace npan
     };
 
     template <IP_version Ver>
-    static std::map<Connection<Protocal::TCP, Ver>, TCP_connection_status> tcp_map;
+    static std::map<Connection<Protocal::TCP, Ver>, TCP_connection_status> tcp_map; // records the connection
 
     template <IP_version Ver>
     void TCP_handler(u_char *data, IP_address<Ver> source_ip, IP_address<Ver> dest_ip, u_int length)
@@ -235,7 +235,9 @@ namespace npan
         }
     }
 
-    template void transport_layer(u_char *data, Protocal protocal, IP_address<IP_version::FOUR> source_ip, IP_address<IP_version::FOUR> dest_ip, u_int length);
-    template void transport_layer(u_char *data, Protocal protocal, IP_address<IP_version::SIX> source_ip, IP_address<IP_version::SIX> dest_ip, u_int length);
+    template void transport_layer(u_char *data, Protocal protocal, IP_address<IP_version::FOUR> source_ip,
+                                  IP_address<IP_version::FOUR> dest_ip, u_int length);
+    template void transport_layer(u_char *data, Protocal protocal, IP_address<IP_version::SIX> source_ip,
+                                  IP_address<IP_version::SIX> dest_ip, u_int length);
 
 } // namespace npan
