@@ -23,9 +23,9 @@ namespace npan
 
     void internet_layer(unsigned char *data, Protocal);
 
-    void transport_layer(unsigned char *data, Protocal, uint64_t source_ip, uint64_t dest_ip, int length);
+    void transport_layer(unsigned char *data, Protocal, uint64_t source_ip, uint64_t dest_ip, unsigned int length);
 
-    void application_layer(std::unique_ptr<std::vector<unsigned char>> data, Protocal, int length);
+    void application_layer(std::unique_ptr<std::vector<unsigned char>> data, Protocal, unsigned int length);
 
     // main entry point
     void inline analyze_packet(unsigned char *data, int length)

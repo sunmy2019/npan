@@ -4,7 +4,7 @@ namespace npan
 {
     void IPv4_handler(unsigned char *data)
     {
-        unsigned int header_length = (data[0] & 15) << 3;
+        unsigned int header_length = (data[0] & 15) << 2;
         unsigned int total_length = GET_TWO_BYTE(2);
         unsigned int flags_offset = GET_TWO_BYTE(6);
         Protocal prot = Protocal::UNKNOWN;
@@ -39,7 +39,7 @@ namespace npan
         fmt::print("Source IP address:      {}.{}.{}.{}\n", data[12], data[13], data[14], data[15]);
         fmt::print("Destination IP address: {}.{}.{}.{}\n", data[16], data[17], data[18], data[19]);
 
-        if (__builtin_expect(prot == Protocal::UNKNOWN, 0))
+        if (prot == Protocal::UNKNOWN) [[unlikely]]
         {
             fmt::print("{:─^56}\n", "");
             return;
