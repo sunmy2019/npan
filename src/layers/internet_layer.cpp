@@ -95,6 +95,7 @@ namespace npan
                 break;
 
             case 58: // ICMPv6
+                prot = Protocal::ICMPv6;
                 fmt::print("Protocal: ICMPv6\n");
                 ext = true;
                 break;
@@ -141,14 +142,13 @@ namespace npan
             }
         } while (!ext);
 
-
         if (prot == Protocal::UNKNOWN) [[unlikely]]
         {
             fmt::print("{:─^56}\n", "");
             return;
         }
 
-        transport_layer(&data[header_offset], prot, source_ip, dest_ip, payload_length);
+        transport_layer(&data[header_offset], prot, source_ip, dest_ip, payload_length + 40 - header_offset);
     }
 
     void ARP_handler(u_char *data)
