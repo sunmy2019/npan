@@ -7,7 +7,6 @@ namespace npan
         fmt::print("{:─^56}\n", " Application layer ");
         fmt::print("TCP stream no {}\n", (tcp_stream_no + 1) >> 1);
         output_packet_to_console(&data[0], data.size());
-        fmt::print("{:─^56}\n", ""); 
+        fmt::print("{:─^56}\n", "");
     }
-
 } // namespace npan
