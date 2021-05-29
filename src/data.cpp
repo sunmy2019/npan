@@ -4,10 +4,9 @@
 #include <cassert>
 namespace npan
 {
-    Packet::Packet(Packet &&other) noexcept
+    Packet::Packet(Packet &&other) noexcept : data(other.data), length(other.length)
     {
-        std::swap(this->data, other.data);
-        std::swap(this->length, other.length);
+        other.data = nullptr;
     }
 
     Packet::~Packet()
@@ -24,6 +23,7 @@ namespace npan
 
         std::ifstream inputFile(filename);
         auto iter = std::istreambuf_iterator<char>(inputFile);
+
         while (iter != std::istreambuf_iterator<char>())
         {
             if (!(('0' <= *iter && *iter <= '9') || ('a' <= *iter && *iter <= 'f') || ('A' <= *iter && *iter <= 'F')))
