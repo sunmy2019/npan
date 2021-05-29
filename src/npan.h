@@ -7,7 +7,10 @@ namespace npan
 {
     enum class Protocal;
 
-    size_t read_packet_from_file(const char *filename, unsigned char *buffer);
+    // represents a packet
+    struct Packet;
+
+    std::vector<Packet> read_packet_from_file(const char *filename);
 
     void output_packet_to_console(const unsigned char *packet, int length);
 
@@ -42,6 +45,21 @@ namespace npan
         TLSv2,
         // Fall back
         UNKNOWN
+    };
+
+    struct Packet
+    {
+        unsigned char *data;
+        size_t length;
+
+        Packet(unsigned char *d, size_t l) : data(d), length(l){};
+        Packet(const Packet &) = delete;
+        Packet &operator=(const Packet &) = delete;
+
+        Packet(Packet &&) noexcept;
+        Packet &operator=(Packet &&) = delete;
+
+        ~Packet();
     };
 
 } // namespace npan

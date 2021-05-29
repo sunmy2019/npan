@@ -9,8 +9,12 @@ int main()
                             0x00, 0x00, 0x00};
     npan::analyze_packet(&data[0], 55);
     unsigned char *buf = new unsigned char[1024];
-    auto length = npan::read_packet_from_file("packets.txt", buf);
+    auto vec_pac = npan::read_packet_from_file("packets.txt");
     
-    npan::output_packet_to_console(buf, length);
-    npan::analyze_packet(buf, length);
+    for (auto &pac : vec_pac)
+    {
+        npan::output_packet_to_console(pac.data, pac.length);
+        npan::analyze_packet(pac.data, pac.length);
+        
+    }
 }
