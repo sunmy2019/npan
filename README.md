@@ -1,8 +1,10 @@
-An network packact analyzer
+# An network packact analyzer (May 29 2021)
 
 It reads packets (in hex-stream form) from files, then does the analysis. [fmtlib](https://fmt.dev/latest/index.html) is needed.
 
 Currently I only implemented the following protocals:
+
+**Error handling is not implemented for simplicity. Assuming every packet is ordered and correctly transmitted only once.**
 
 ### Physical Layer
 
