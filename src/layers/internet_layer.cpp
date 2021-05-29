@@ -9,6 +9,9 @@ namespace npan
         // u_int flags_offset = GET_TWO_BYTE(6);
         Protocal prot = Protocal::UNKNOWN;
 
+        IPv4_addr source_ip{GET_FOUR_BYTE(12)};
+        IPv4_addr dest_ip{GET_FOUR_BYTE(16)};
+
         fmt::print("IP version {}\n", data[0] >> 4);
 
         fmt::print("Header length {} bytes\n", header_length);
@@ -36,8 +39,8 @@ namespace npan
             break;
         }
 
-        fmt::print("Source IP address:      {}.{}.{}.{}\n", data[12], data[13], data[14], data[15]);
-        fmt::print("Destination IP address: {}.{}.{}.{}\n", data[16], data[17], data[18], data[19]);
+        fmt::print("Source IP address:      {}\n", source_ip);
+        fmt::print("Destination IP address: {}\n", dest_ip);
 
         if (prot == Protocal::UNKNOWN) [[unlikely]]
         {
@@ -45,8 +48,7 @@ namespace npan
             return;
         }
 
-        transport_layer(&data[header_length], prot, IPv4_addr(GET_FOUR_BYTE(12)), IPv4_addr(GET_FOUR_BYTE(16)),
-                        total_length - header_length);
+        transport_layer(&data[header_length], prot, source_ip, dest_ip, total_length - header_length);
     }
     void IPv6_handler(u_char *data)
     {

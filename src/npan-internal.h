@@ -92,9 +92,32 @@ namespace npan
 }
 
 template <>
+struct fmt::formatter<npan::IPv4_addr>
+{
+    constexpr auto parse(fmt::format_parse_context &ctx)
+    {
+        auto it = ctx.begin(), end = ctx.end();
+
+        if (it != end && *it != '}')
+            throw format_error("invalid format");
+
+        // Return an iterator past the end of the parsed range:
+        return it;
+    }
+
+    // Formats the point p using the parsed format specification (presentation)
+    // stored in this formatter.
+    template <typename FormatContext>
+    auto format(const npan::IPv4_addr &ip, FormatContext &ctx)
+    {
+        return format_to(ctx.out(), "{}.{}.{}.{}", (ip.first >> 24) & 0xff,
+                         (ip.first >> 16) & 0xff, (ip.first >> 8) & 0xff, ip.first & 0xff);
+    }
+};
+
+template <>
 struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
 {
-    // Parses format specifications of the form ['f' | 'e'].
     constexpr auto parse(fmt::format_parse_context &ctx)
     {
         auto it = ctx.begin(), end = ctx.end();
@@ -120,7 +143,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
 
         for (int i = 48; i >= 0; i -= 16)
         {
-            u_int16_t temp = (ip.first >> i) & (0xffff);
+            u_int16_t temp = (ip.first >> i) & 0xffff;
 
             if (temp == 0 && status == 0)
             {
@@ -139,7 +162,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
 
         for (int i = 48; i >= 0; i -= 16)
         {
-            u_int16_t temp = (ip.last >> i) & (0xffff);
+            u_int16_t temp = (ip.last >> i) & 0xffff;
 
             if (temp == 0 && status == 0)
             {
