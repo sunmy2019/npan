@@ -1,6 +1,6 @@
 #pragma once
 
-// npan user interface
+/* npan user interface */
 
 #include <fmt/format.h>
 #include <vector>

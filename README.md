@@ -11,6 +11,7 @@ Currently I only implemented the following protocals:
 ### Internet Layer
 
 * IPv4
+* IPv6
 * ARP (TODO)
 
 ### Transport Layer
