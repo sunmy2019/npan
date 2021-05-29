@@ -1,6 +1,6 @@
 An network packact analyzer
 
-It reads packets (in hex-stream form) from files, then does the analysis.
+It reads packets (in hex-stream form) from files, then does the analysis. [fmtlib](https://fmt.dev/latest/index.html) is needed.
 
 Currently I only implemented the following protocals:
 
@@ -11,7 +11,7 @@ Currently I only implemented the following protocals:
 ### Internet Layer
 
 * IPv4
-* IPv6 (TODO)
+* ARP (TODO)
 
 ### Transport Layer
 

@@ -5,7 +5,6 @@
 
 namespace npan
 {
-
     // represents a packet
     struct Packet;
 
@@ -15,28 +14,7 @@ namespace npan
 
     void dump_packet_to_file(FILE *file, const u_char *packet, int length);
 
-    // about the protocal
-
-    enum class Protocal;
-
-    void physical_layer(u_char *data);
-
-    void internet_layer(u_char *data, Protocal);
-
-    void transport_layer(u_char *data, Protocal, uint64_t source_ip, uint64_t dest_ip, u_int length);
-
-    void application_layer(std::vector<u_char> data,  u_int stream_no, Protocal);
-
-    void application_layer(Packet packet,  u_int stream_no);
-
-
-
-    // main entry point
-    void inline analyze_packet(u_char *data, int length)
-    {
-        physical_layer(data);
-    }
-
+    // about the protocals
     enum class Protocal
     {
         // physical layer
@@ -45,16 +23,44 @@ namespace npan
         IPV4,
         IPV6,
         ARP,
-        RARP,
         // Transport layer
         TCP,
         UDP,
         // Application layer
         HTTP,
         TLSv2,
-        // Fall back
+        // Fallback
         UNKNOWN
     };
+
+    void physical_layer(u_char *data);
+
+    void internet_layer(u_char *data, Protocal);
+
+
+    enum class IP_version;
+
+    template <IP_version v>
+    struct IP_address;
+
+    template <Protocal P, IP_version V>
+    struct Connection;
+
+
+
+    template <IP_version V>
+    void transport_layer(u_char *data, Protocal, IP_address<V> source_ip, IP_address<V> dest_ip, u_int length);
+
+    void application_layer(std::vector<u_char> data, u_int tcp_stream_no, Protocal);
+
+    template <IP_version V>
+    void application_layer(std::vector<u_char> data, Connection<Protocal::UDP, V>, Protocal);
+
+    // main entry point
+    void inline analyze_packet(u_char *data, int length)
+    {
+        physical_layer(data);
+    }
 
     struct Packet
     {

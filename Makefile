@@ -19,4 +19,7 @@ npan:  object
 run: npan
 	build/main example_input.txt
 
+clean:
+	rm -r build/
+
 .: npan

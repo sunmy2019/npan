@@ -24,17 +24,13 @@ namespace npan
             prot = Protocal::ARP;
             fmt::print("Protocal type: ARP\n");
             break;
-        case 0x0835:
-            prot = Protocal::RARP;
-            fmt::print("Protocal type: RARP\n");
-            break;
 
         default:
             fmt::print("Unsupported protocal type {:04x}\n", GET_TWO_BYTE(12));
             fmt::print("{:─^56}\n", "");
             return;
         }
-
+        
         // fmt::print("{:─^56}\n", "");
 
         internet_layer(&data[14], prot);

@@ -45,7 +45,8 @@ namespace npan
             return;
         }
 
-        transport_layer(&data[header_length], prot, GET_FOUR_BYTE(12), GET_FOUR_BYTE(16), total_length - header_length);
+        transport_layer(&data[header_length], prot, IP_address<IP_version::FOUR>(GET_FOUR_BYTE(12)),
+                        IP_address<IP_version::FOUR>(GET_FOUR_BYTE(16)), total_length - header_length);
     }
 
     void IPv6_handler(u_char *data)
@@ -53,10 +54,6 @@ namespace npan
     }
 
     void ARP_handler(u_char *data)
-    {
-    }
-
-    void RARP_handler(u_char *data)
     {
     }
 
@@ -76,10 +73,6 @@ namespace npan
 
         case Protocal::ARP:
             ARP_handler(data);
-            break;
-
-        case Protocal::RARP:
-            RARP_handler(data);
             break;
 
         default:
