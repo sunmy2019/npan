@@ -112,27 +112,29 @@ namespace npan
                 break;
             }
 
-            buffer_start_seq = &tcp_map[tcps].buffer_start_seq;
-            buffer = &tcp_map[tcps].buffer;
-
-            if (*buffer_start_seq == 0) [[unlikely]] // first arrival of this tcp connection
-                *buffer_start_seq = init_seq + 1;
-
-            if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
+            if (payload_length != 0) [[likely]]
             {
-                fmt::print("Package arrived after its buffer being pushed\n");
-                fmt::print("{:─^56}\n", "");
-                return;
+                buffer_start_seq = &tcp_map[tcps].buffer_start_seq;
+                buffer = &tcp_map[tcps].buffer;
+
+                if (*buffer_start_seq == 0) [[unlikely]] // first arrival of this tcp connection
+                    *buffer_start_seq = init_seq + 1;
+
+                if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
+                {
+                    fmt::print("Package arrived after its buffer being pushed\n");
+                    fmt::print("{:─^56}\n", "");
+                    return;
+                }
+
+                if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
+                    buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
+                // output_packet_to_console(&data[header_length], payload_length);
+                memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
             }
-
-            if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
-                buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
-            // output_packet_to_console(&data[header_length], payload_length);
-            memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
-
             break;
-        case 0x18: // ACK, PUSH
 
+        case 0x18: // ACK, PUSH
             fmt::print("Flag: ACK, PUSH\n");
 
             init_ack = tcp_map[tcps].init_ack;
@@ -155,6 +157,7 @@ namespace npan
                 buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
             // output_packet_to_console(&data[header_length], payload_length);
             memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
+
             break;
 
         case 0x11: // FIN, ACK
@@ -166,6 +169,26 @@ namespace npan
             init_ack = tcp_map[tcps].init_ack;
             init_seq = tcp_map[tcps].init_seq;
 
+            if (payload_length != 0) [[unlikely]]
+            {
+                buffer_start_seq = &tcp_map[tcps].buffer_start_seq;
+                buffer = &tcp_map[tcps].buffer;
+
+                if (*buffer_start_seq == 0) [[unlikely]] // first arrival of this tcp connection
+                    *buffer_start_seq = init_seq + 1;
+
+                if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
+                {
+                    fmt::print("Package arrived after its buffer being pushed\n");
+                    fmt::print("{:─^56}\n", "");
+                    return;
+                }
+
+                if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
+                    buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
+                // output_packet_to_console(&data[header_length], payload_length);
+                memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
+            }
             break;
         case 0x04:
             fmt::print("Flag: RST\n");
