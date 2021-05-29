@@ -105,7 +105,7 @@ struct fmt::formatter<npan::IPv4_addr>
         return it;
     }
 
-    // Formats the point p using the parsed format specification (presentation)
+    // Formats the ip address using the parsed format specification (presentation)
     // stored in this formatter.
     template <typename FormatContext>
     auto format(const npan::IPv4_addr &ip, FormatContext &ctx)
@@ -129,7 +129,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
         return it;
     }
 
-    // Formats the point p using the parsed format specification (presentation)
+    // Formats the ip address using the parsed format specification (presentation)
     // stored in this formatter.
     template <typename FormatContext>
     auto format(const npan::IPv6_addr &ip, FormatContext &ctx)
@@ -137,8 +137,8 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
         fmt::memory_buffer out;
 
         int status = 0;
-        // 0: haven't met consecutive 0
-        // 1: current in omitted position
+        // 0: haven't met consecutive 0s
+        // 1: current in omitted state
         // 2: already omitted
 
         for (int i = 48; i >= 0; i -= 16)
@@ -178,6 +178,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
                 format_to(out, "{:x}{}", temp, i ? ':' : '\0');
             }
         }
+        
         string_view sv{out.data(), out.size()};
         return fmt::formatter<string_view>::format(sv, ctx);
     }
