@@ -124,6 +124,8 @@ namespace npan
                 if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
                 {
                     fmt::print("Package arrived after its buffer being pushed\n");
+                    fmt::print("Source port:      {}\n", source_port);
+                    fmt::print("Destination port: {}\n", dest_port);
                     fmt::print("{:─^56}\n", "");
                     return;
                 }
@@ -151,6 +153,8 @@ namespace npan
             if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
             {
                 fmt::print("Package arrived after its buffer being pushed\n");
+                fmt::print("Source port:      {}\n", source_port);
+                fmt::print("Destination port: {}\n", dest_port);
                 fmt::print("{:─^56}\n", "");
                 return;
             }
@@ -182,6 +186,8 @@ namespace npan
                 if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
                 {
                     fmt::print("Package arrived after its buffer being pushed\n");
+                    fmt::print("Source port:      {}\n", source_port);
+                    fmt::print("Destination port: {}\n", dest_port);
                     fmt::print("{:─^56}\n", "");
                     return;
                 }
@@ -195,6 +201,8 @@ namespace npan
 
         case 0x04: // RST
             fmt::print("Flag: RST\n");
+            fmt::print("Source port:      {}\n", source_port);
+            fmt::print("Destination port: {}\n", dest_port);
             fmt::print("{:─^56}\n", "");
             return;
 
