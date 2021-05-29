@@ -6,9 +6,14 @@ namespace npan
     struct TCP_connection
     {
         uint64_t source_ip;
-        uint64_t dest_ip;
         unsigned int source_port;
+        uint64_t dest_ip;
         unsigned int dest_port;
+
+        TCP_connection get_conjugate()
+        {
+            return {dest_ip, dest_port, source_ip, source_port};
+        }
     };
 
     struct TCP_connection_status

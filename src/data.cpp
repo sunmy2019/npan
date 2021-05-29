@@ -1,6 +1,6 @@
 #include "utils.h"
 #include <fstream>
-#include <iostream>
+// #include <iostream>
 #include <cassert>
 namespace npan
 {
@@ -38,7 +38,7 @@ namespace npan
             while (iter != std::istreambuf_iterator<char>() && *iter != '\n')
             {
                 current_character = ('0' <= *iter && *iter <= '9') ? (*iter - '0') : (('a' <= *iter && *iter <= 'f') ? (*iter - 'a' + 10) : (*iter - 'A' + 10));
-                assert(current_character < 16);
+                assert(current_character < 16); // otherwise unallowed character has appeared
                 if (++current_position % 2)
                 {
                     tmp = current_character << 4;
@@ -67,6 +67,15 @@ namespace npan
             fmt::print("{:02x} ", packet[i]);
         }
         fmt::print("\n");
+    }
+
+    void dump_packet_to_file(FILE *file, const unsigned char *packet, int length)
+    {
+        for (int i = 0; i < length; ++i)
+        {
+            fmt::print(file, "{:02x}", packet[i]);
+        }
+        fmt::print(file, "\n");
     }
 
 } // namespace npan

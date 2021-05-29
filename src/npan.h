@@ -5,7 +5,6 @@
 
 namespace npan
 {
-    enum class Protocal;
 
     // represents a packet
     struct Packet;
@@ -13,6 +12,12 @@ namespace npan
     std::vector<Packet> read_packet_from_file(const char *filename);
 
     void output_packet_to_console(const unsigned char *packet, int length);
+
+    void dump_packet_to_file(FILE *file, const unsigned char *packet, int length);
+
+    // about the protocal
+
+    enum class Protocal;
 
     void physical_layer(unsigned char *data);
 
