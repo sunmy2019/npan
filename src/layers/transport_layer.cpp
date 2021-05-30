@@ -215,7 +215,7 @@ namespace npan
     {
         u_int source_port = GET_TWO_BYTE(0);
         u_int dest_port = GET_TWO_BYTE(2);
-        assert(length == GET_FOUR_BYTE(4));
+        assert(length == GET_TWO_BYTE(4));
         fmt::print("Source port:      {}\n", source_port);
         fmt::print("Destination port: {}\n", dest_port);
         fmt::print("Total length  {} bytes\n", length);
