@@ -2,7 +2,7 @@ VPATH = src:build
 
 OBJS = layers/physical_layer.o layers/internet_layer.o layers/transport_layer.o layers/application_layer.o ./data.o ./main.o
 
-DEBUG ?= 1
+DEBUG ?= 0
 ifeq ($(DEBUG), 1)
     COMPFLAGS = -g -fsanitize=address
 	LINKFLAGS = -lfmt -lasan

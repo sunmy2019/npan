@@ -50,10 +50,10 @@ namespace npan
     template <IP_ver V>
     void transport_layer(u_char *data, Protocal, IP_addr<V> source_ip, IP_addr<V> dest_ip, u_int length);
 
-    void application_layer(std::vector<u_char> data, u_int tcp_stream_no, Protocal);
+    void application_layer(std::vector<u_char> data, u_int tcp_stream_no);
 
     template <IP_ver V>
-    void application_layer(std::vector<u_char> data, Connection<Protocal::UDP, V>, Protocal) {}
+    void application_layer(u_char *data, u_int length, Connection<Protocal::UDP, V>);
 
     template <>
     struct IP_addr<IP_ver::FOUR>
@@ -178,7 +178,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
                 format_to(out, "{:x}{}", temp, i ? ':' : '\0');
             }
         }
-        
+
         string_view sv{out.data(), out.size()};
         return fmt::formatter<string_view>::format(sv, ctx);
     }
