@@ -5,7 +5,7 @@ namespace npan
     void application_layer(std::vector<u_char> data, u_int tcp_stream_no)
     {
         fmt::print("{:─^56}\n", " Application layer ");
-        fmt::print("TCP stream number: {}\n", (tcp_stream_no + 1) >> 1);
+        fmt::print("TCP stream number {} with payload length: {} bytes\n", (tcp_stream_no + 1) >> 1, data.size());
         output_packet_to_console(&data[0], data.size());
         fmt::print("{:─^56}\n", "");
     }
@@ -14,7 +14,7 @@ namespace npan
     void application_layer(u_char *data, u_int length, Connection<Protocal::UDP, V>)
     {
         fmt::print("{:─^56}\n", " Application layer ");
-        fmt::print("UDP stream\n");
+        fmt::print("UDP stream with payload length: {} bytes\n", length);
         output_packet_to_console(&data[0], length);
         fmt::print("{:─^56}\n", "");
     }
