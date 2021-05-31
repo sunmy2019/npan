@@ -58,15 +58,15 @@ namespace npan
     template <>
     struct IP_addr<IP_ver::FOUR>
     {
-        uint32_t first;
+        u_int32_t first;
         friend std::strong_ordering operator<=>(const IP_addr &, const IP_addr &) = default;
     };
 
     template <>
     struct IP_addr<IP_ver::SIX>
     {
-        uint64_t first;
-        uint64_t last;
+        u_int64_t first;
+        u_int64_t last;
         friend std::strong_ordering operator<=>(const IP_addr &, const IP_addr &) = default;
     };
 

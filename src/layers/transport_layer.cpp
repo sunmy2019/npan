@@ -7,12 +7,12 @@ namespace npan
 
     struct TCP_connection_status
     {
-        u_int tcp_stream_no;
-        u_int init_seq;
-        u_int init_ack;
+        u_int32_t tcp_stream_no;
+        u_int32_t init_seq;
+        u_int32_t init_ack;
         bool started = 0;
         bool finished = 0;
-        uint32_t buffer_start_seq = 0; // absolute
+        u_int32_t buffer_start_seq = 0; // absolute
         std::vector<u_char> buffer;
 
         void flush_buffer()
@@ -33,20 +33,20 @@ namespace npan
         // output_packet_to_console(data, length);
         u_int source_port = GET_TWO_BYTE(0);
         u_int dest_port = GET_TWO_BYTE(2);
-        uint32_t seq = GET_FOUR_BYTE(4);
-        uint32_t ack = GET_FOUR_BYTE(8);
-        uint32_t init_seq = 0;
-        uint32_t init_ack = 0;
+        u_int32_t seq = GET_FOUR_BYTE(4);
+        u_int32_t ack = GET_FOUR_BYTE(8);
+        u_int32_t init_seq = 0;
+        u_int32_t init_ack = 0;
 
         u_int flag = GET_TWO_BYTE(12);
         u_int header_length = (flag & 0xf000) >> 10; // in bytes
 
         std::vector<u_char> *buffer = nullptr;
-        uint32_t *buffer_start_seq = nullptr;
+        u_int32_t *buffer_start_seq = nullptr;
 
         flag &= 0x0fff;
 
-        uint32_t payload_length = length - header_length;
+        u_int32_t payload_length = length - header_length;
 
         u_int window = GET_TWO_BYTE(14);
 
