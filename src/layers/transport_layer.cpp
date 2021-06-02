@@ -1,6 +1,7 @@
 #include "../npan-internal.h"
 #include <cassert>
-#include <map>
+#include <unordered_map>
+
 namespace npan
 {
     static uint global_tcp_stream_no = 0;
@@ -24,7 +25,7 @@ namespace npan
     };
 
     template <IP_ver Ver>
-    static std::map<Connection<Protocal::TCP, Ver>, TCP_connection_status> tcp_map; // records the connection
+    static std::unordered_map<Connection<Protocal::TCP, Ver>, TCP_connection_status> tcp_map; // records the connection
 
     template <IP_ver Ver>
     void TCP_handler(u_char *data, IP_addr<Ver> source_ip, IP_addr<Ver> dest_ip, u_int length)

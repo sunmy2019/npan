@@ -91,6 +91,45 @@ namespace npan
 
 }
 
+namespace std
+{
+#define NPAN_BITXOR_(typea, a, typeb, b) (((std::hash<typea>()(a) << 1) ^ std::hash<typeb>()(b)) >> 1)
+#define NPAN_BITXOR__(a, typeb, b) (((a << 1) ^ std::hash<typeb>()(b)) >> 1)
+    template <>
+    struct hash<npan::IPv4_addr>
+    {
+        std::size_t operator()(const npan::IPv4_addr &k) const
+        {
+            return std::hash<u_int32_t>()(k.first);
+        }
+    };
+
+    template <>
+    struct hash<npan::IPv6_addr>
+    {
+        std::size_t operator()(const npan::IPv6_addr &k) const
+        {
+            return NPAN_BITXOR_(u_int32_t, k.first, u_int32_t, k.last);
+        }
+    };
+
+    template <npan::Protocal P, npan::IP_ver V>
+    struct hash<npan::Connection<P, V>>
+    {
+        std::size_t operator()(const npan::Connection<P, V> &k) const
+        {
+            return NPAN_BITXOR__(
+                NPAN_BITXOR__(
+                    NPAN_BITXOR_(npan::IP_addr<V>, k.source_ip, u_int, k.source_port),
+                    npan::IP_addr<V>, k.dest_ip),
+                u_int, k.dest_port);
+        }
+    };
+
+#undef NPAN_BITXOR_
+#undef NPAN_BITXOR__
+} // namespace std
+
 template <>
 struct fmt::formatter<npan::IPv4_addr>
 {
