@@ -48,6 +48,6 @@ prof: run
 	gprof build/main gmon.out
 	
 clean:
-	-rm -r *.out *.o *.a
-	-rm -r build/
+	-rm -rf *.out *.o *.a
+	-rm -rf build/
 	
