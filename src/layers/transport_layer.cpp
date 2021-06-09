@@ -67,13 +67,22 @@ namespace npan
 
         case 0x12: // SYNC, ACK
             fmt::print("Flag: SYNC, ACK\n");
-
             // second handshake
+
+            // if the first handshake is lost, we will fake one
+            if (tcp_map<Ver>.find(tcps) == tcp_map<Ver>.end() && tcp_map<Ver>.find(tcpr) == tcp_map<Ver>.end()) [[unlikely]]
+            {
+                tcp_map<Ver>[tcpr].started = 1; // start other
+                tcp_map<Ver>[tcpr].tcp_stream_no = ++global_tcp_stream_no;
+                tcp_map<Ver>[tcps].tcp_stream_no = ++global_tcp_stream_no;
+                tcp_map<Ver>[tcpr].init_seq = ack - 1;
+                tcp_map<Ver>[tcps].init_ack = ack - 1;
+            }
+
             tcp_map<Ver>[tcps].started = 1; // start self
             tcp_map<Ver>[tcps].init_seq = seq;
             tcp_map<Ver>[tcpr].init_ack = seq;
-            // fmt::print("{},{}", tcp_map<Ver>[tcps].init_seq, tcp_map<Ver>[tcps].init_ack);
-            // fmt::print("{},{}", tcp_map<Ver>[tcpr].init_seq, tcp_map<Ver>[tcpr].init_ack);
+
             init_seq = seq - 1;
             init_ack = ack;
             break;
@@ -93,11 +102,19 @@ namespace npan
             }
 
             if (!tcp_map<Ver>[tcps].started) [[unlikely]]
-            { // third handshake
-                assert(ack == init_ack + 1);
-                assert(seq == init_seq + 1);
-                tcp_map<Ver>[tcps].started = 1;
-                break;
+            {
+                if (ack == init_ack + 1 && seq == init_seq + 1) [[likely]]
+                { // third handshake
+                    tcp_map<Ver>[tcps].started = 1;
+                    break;
+                }
+                else
+                { // handshakes are all lost! Fill in whatever is usable
+                    tcp_map<Ver>[tcps] = TCP_connection_status{++global_tcp_stream_no, seq, ack, 1 /* stream started */};
+                    tcp_map<Ver>[tcpr] = TCP_connection_status{++global_tcp_stream_no, ack, seq, 1 /* stream started */};
+                    init_ack = tcp_map<Ver>[tcps].init_ack;
+                    init_seq = tcp_map<Ver>[tcps].init_seq;
+                }
             }
 
             if (payload_length != 0) [[likely]]
@@ -127,6 +144,14 @@ namespace npan
         case 0x18: // ACK, PUSH
 
             fmt::print("Flag: ACK, PUSH\n");
+
+            if (tcp_map<Ver>.find(tcps) == tcp_map<Ver>.end() || tcp_map<Ver>.find(tcpr) == tcp_map<Ver>.end()) [[unlikely]]
+            { // handshakes are all lost! Fill in whatever is usable
+                tcp_map<Ver>[tcps] = TCP_connection_status{++global_tcp_stream_no, seq, ack, 1 /* stream started */};
+                tcp_map<Ver>[tcpr] = TCP_connection_status{++global_tcp_stream_no, ack, seq, 1 /* stream started */};
+                init_ack = tcp_map<Ver>[tcps].init_ack;
+                init_seq = tcp_map<Ver>[tcps].init_seq;
+            }
 
             init_ack = tcp_map<Ver>[tcps].init_ack;
             init_seq = tcp_map<Ver>[tcps].init_seq;
@@ -184,6 +209,14 @@ namespace npan
                 // output_packet_to_console(&data[header_length], payload_length);
                 memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
             }
+
+            if (tcp_map<Ver>[tcpr].finished && tcp_map<Ver>[tcps].finished) [[unlikely]]
+            { // if both finished, remove both tcps and tcpr
+                tcp_map<Ver>.erase(tcps);
+                tcp_map<Ver>.erase(tcpr);
+                fmt::print("Connection closed\n");
+                break;
+            }
             break;
 
         case 0x04: // RST
@@ -191,6 +224,10 @@ namespace npan
             fmt::print("Source port:      {}\n", source_port);
             fmt::print("Destination port: {}\n", dest_port);
             fmt::print("{:─^56}\n", "");
+            if (tcp_map<Ver>.find(tcps) != tcp_map<Ver>.end())
+                tcp_map<Ver>.erase(tcps);
+            if (tcp_map<Ver>.find(tcpr) != tcp_map<Ver>.end())
+                tcp_map<Ver>.erase(tcpr);
             return;
 
         default:
