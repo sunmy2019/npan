@@ -4,7 +4,7 @@ It reads packets (in hex-stream form) from files, then does the analysis. [fmtli
 
 Currently I only implemented the following protocals:
 
-**Error handling is not implemented for simplicity. Assuming every packet is ordered and correctly transmitted only once.**
+Broken TCP connection now supportted. It means you don't have to start a TCP connection with handshakes.
 
 ### Physical Layer
 
