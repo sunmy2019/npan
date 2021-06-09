@@ -5,9 +5,12 @@ build/
 [Oo]bj/
 [Bb]in/
 .vscode/
+.clangd/
+.cache/
 
 # Other files and folders
 .settings/
+compile_commands.json
 
 # Executables
 *.swf
@@ -20,3 +23,4 @@ build/
 # information for Eclipse / Flash Builder.
 packets.txt
 out.txt
+gmon.out
