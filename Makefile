@@ -25,23 +25,23 @@ endif
 
 .: npan
 
-npan: $(OUTDIR) lib/libnpan.a
+npan: lib/libnpan.a
 
-$(OBJS): npan.h npan-internal.h
+$(OBJS): npan.h npan-internal.h | $(OUTDIR)
 
 $(OUTDIR):
 	mkdir -p $@
 
 .PHONY: builddir
-builddir: $(OUTDIR)
+builddir: | $(OUTDIR)
 
 lib/libnpan.a: $(OBJS)
 	ar rvs build/$@ $(addprefix build/,$?)
 
-build/main: $(OUTDIR) lib/libnpan.a ./main.o
+build/main: lib/libnpan.a ./main.o | $(OUTDIR) 
 	g++-11 build/main.o -Lbuild/lib -lnpan -o $@ $(LINKFLAGS)
 
-build/test-k12: $(OUTDIR) lib/libnpan.a ./test-k12.o
+build/test-k12: lib/libnpan.a ./test-k12.o | $(OUTDIR) 
 	g++-11 build/test-k12.o -Lbuild/lib -lnpan -o $@ $(LINKFLAGS)
 
 
