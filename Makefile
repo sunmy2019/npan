@@ -1,6 +1,7 @@
 VPATH = src:demo:include:build
 
 OBJS = layers/physical_layer.o layers/internet_layer.o layers/transport_layer.o layers/application_layer.o ./data.o
+OUTDIR = build/layers build/lib
 
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
@@ -24,29 +25,37 @@ endif
 
 .: npan
 
+npan: $(OUTDIR) lib/libnpan.a
+
 $(OBJS): npan.h npan-internal.h
 
-npan: builddir lib/libnpan.a
+$(OUTDIR):
+	mkdir -p $@
 
-main: npan ./main.o
-	g++-11 build/main.o -Lbuild/lib -lnpan -o build/main $(LINKFLAGS)
-
-builddir:
-	@mkdir -p build/layers
-	@mkdir -p build/lib
-
-object: builddir $(OBJS)
+.PHONY: builddir
+builddir: $(OUTDIR)
 
 lib/libnpan.a: $(OBJS)
 	ar rvs build/$@ $(addprefix build/,$?)
 
-run:
+build/main: $(OUTDIR) lib/libnpan.a ./main.o
+	g++-11 build/main.o -Lbuild/lib -lnpan -o $@ $(LINKFLAGS)
+
+build/test-k12: $(OUTDIR) lib/libnpan.a ./test-k12.o
+	g++-11 build/test-k12.o -Lbuild/lib -lnpan -o $@ $(LINKFLAGS)
+
+
+
+
+.PHONY: run
+run: main
 	build/main example_input.txt
 
-
+.PHONY: prof
 prof: run
 	gprof build/main gmon.out
-	
+
+.PHONY: clean
 clean:
 	-rm -rf *.out *.o *.a
 	-rm -rf build/
