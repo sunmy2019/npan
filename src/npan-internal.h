@@ -187,7 +187,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
             if (temp == 0 && status == 0)
             {
                 status = 1;
-                format_to(out, "{::^{}}", "", i == 48 ? 2 : 1);
+                format_to(fmt::appender(out), "{::^{}}", "", i == 48 ? 2 : 1);
             }
             else if (temp != 0 && status == 1)
             {
@@ -195,7 +195,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
             }
             if (status != 1)
             {
-                format_to(out, "{:x}:", temp);
+                format_to(fmt::appender(out), "{:x}:", temp);
             }
         }
 
@@ -206,7 +206,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
             if (temp == 0 && status == 0)
             {
                 status = 1;
-                format_to(out, ":");
+                format_to(fmt::appender(out), ":");
             }
             else if (temp != 0 && status == 1)
             {
@@ -214,7 +214,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
             }
             if (status != 1)
             {
-                format_to(out, "{:x}{}", temp, i ? ':' : '\0');
+                format_to(fmt::appender(out), "{:x}{}", temp, i ? ':' : '\0');
             }
         }
 
