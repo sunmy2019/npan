@@ -1,6 +1,6 @@
-VPATH = src:build
+VPATH = src:demo:include:build
 
-OBJS = layers/physical_layer.o layers/internet_layer.o layers/transport_layer.o layers/application_layer.o ./data.o ./main.o
+OBJS = layers/physical_layer.o layers/internet_layer.o layers/transport_layer.o layers/application_layer.o ./data.o
 
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
@@ -20,24 +20,34 @@ endif
 .SUFFIXES: .cpp
 
 .cpp.o:
-	g++-11 -std=c++20 -Wall $(COMPFLAGS) -c $^ -o build/$*.o 
+	g++-11 -std=c++20 -Wall $(COMPFLAGS) -Iinclude -c $< -o build/$*.o 
 
 .: npan
 
-npan:  object
-	g++-11 $(addprefix build/,$(OBJS)) -o build/main $(LINKFLAGS)
+$(OBJS): npan.h npan-internal.h
+
+npan: builddir lib/libnpan.a
+
+main: npan ./main.o
+	g++-11 build/main.o -Lbuild/lib -lnpan -o build/main $(LINKFLAGS)
 
 builddir:
-	mkdir -p build/layers
+	@mkdir -p build/layers
+	@mkdir -p build/lib
 
 object: builddir $(OBJS)
 
+lib/libnpan.a: $(OBJS)
+	ar rvs build/$@ $(addprefix build/,$?)
 
 run:
 	build/main example_input.txt
 
-clean:
-	rm -r build/
 
 prof: run
 	gprof build/main gmon.out
+	
+clean:
+	-rm -r *.out *.o *.a
+	-rm -r build/
+	
