@@ -11,6 +11,12 @@ else
 	LINKFLAGS = -lfmt
 endif
 
+PROF ?= 0
+ifeq ($(PROF), 1)
+    COMPFLAGS += -pg
+	LINKFLAGS += -pg
+endif
+
 .SUFFIXES: .cpp
 
 .cpp.o:
@@ -18,17 +24,20 @@ endif
 
 .: npan
 
+npan:  object
+	g++-11 $(addprefix build/,$(OBJS)) -o build/main $(LINKFLAGS)
+
 builddir:
 	mkdir -p build/layers
 
 object: builddir $(OBJS)
 
-npan:  object
-	g++-11 $(addprefix build/,$(OBJS)) -o build/main $(LINKFLAGS)
-	
 
 run: npan
 	build/main example_input.txt
 
 clean:
 	rm -r build/
+
+prof: run
+	gprof build/main gmon.out
