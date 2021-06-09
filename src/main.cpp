@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    std::vector<npan::Packet> vec_pac = npan::read_packet_from_file(argv[1]);
+    std::vector<npan::Packet> vec_pac = npan::read_packet_from_K12(argv[1]);
 
     for (auto &pac : vec_pac)
     {
