@@ -45,8 +45,6 @@ build/test-k12: $(OUTDIR) lib/libnpan.a ./test-k12.o
 	g++-11 build/test-k12.o -Lbuild/lib -lnpan -o $@ $(LINKFLAGS)
 
 
-
-
 .PHONY: run
 run: main
 	build/main example_input.txt
