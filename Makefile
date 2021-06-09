@@ -33,7 +33,7 @@ builddir:
 object: builddir $(OBJS)
 
 
-run: npan
+run:
 	build/main example_input.txt
 
 clean:
