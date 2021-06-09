@@ -23,7 +23,9 @@ namespace npan
         ~Packet();
     };
 
-    std::vector<Packet> read_packet_from_file(const char *filename);
+    std::vector<Packet> read_packet_from_hex_dump(const char *filename);
+    
+    std::vector<Packet> read_packet_from_K12(const char *filename);
 
     void output_packet_to_console(const u_char *packet, int length);
 
