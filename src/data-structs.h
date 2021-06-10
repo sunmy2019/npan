@@ -166,7 +166,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
         fmt::memory_buffer buf;
         auto back_inserter = std::back_inserter(buf);
 
-        int status = 0;
+        char status = 0;
         // 0: haven't met consecutive 0s
         // 1: current in omitted state
         // 2: already omitted

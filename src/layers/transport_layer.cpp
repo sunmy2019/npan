@@ -3,7 +3,7 @@
 
 namespace npan
 {
-    static uint global_tcp_stream_no = 0;
+    static u_int global_tcp_stream_no = 0;
 
     struct TCP_connection_status
     {
@@ -259,7 +259,7 @@ namespace npan
         application_layer(&data[8], length - 8, Connection<Protocal::UDP, V>{source_ip, source_port, dest_ip, dest_port});
     }
 
-    void ICMPv6_handler(u_char *data, IPv6_addr source_ip, IPv6_addr dest_ip, int length)
+    void ICMPv6_handler(u_char *data, IPv6_addr source_ip, IPv6_addr dest_ip, u_int length)
     {
         detail::print("{:─^56}\n", "");
     }

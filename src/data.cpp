@@ -45,13 +45,13 @@ namespace npan
                 continue;
             }
             buffer = buf;
-            int current_position = 0;
+            u_int current_position = 0;
             char current_character = 0;
             u_char tmp = 0;
             while (iter != std::istreambuf_iterator<char>() && *iter != '\n')
             {
                 current_character = ('0' <= *iter && *iter <= '9') ? (*iter - '0') : (('a' <= *iter && *iter <= 'f') ? (*iter - 'a' + 10) : (*iter - 'A' + 10));
-                NPAN_ASSERT(current_character < 16, "Unallowed character '{}'! (ascii: {})\n", *iter, (int)(*iter));
+                NPAN_ASSERT(current_character < 16, "Unallowed character '{}'! (ascii: {})\n", *iter, (u_int)(*iter));
                 if (++current_position % 2)
                 {
                     tmp = current_character << 4;
@@ -107,7 +107,7 @@ namespace npan
             ++iter; // now is  '|'
 
             buffer = buf;
-            int current_position = 0;
+            u_int current_position = 0;
             char current_character = 0;
             u_char tmp = 0;
             while (iter != std::istreambuf_iterator<char>() && *iter != '\n')
@@ -118,7 +118,7 @@ namespace npan
                     continue;
                 }
                 current_character = ('0' <= *iter && *iter <= '9') ? (*iter - '0') : (('a' <= *iter && *iter <= 'f') ? (*iter - 'a' + 10) : (*iter - 'A' + 10));
-                NPAN_ASSERT(current_character < 16, "Unallowed character '{}'! (ascii: {})\n", *iter, (int)(*iter));
+                NPAN_ASSERT(current_character < 16, "Unallowed character '{}'! (ascii: {})\n", *iter, (u_int)(*iter));
                 if (++current_position % 2)
                 {
                     tmp = current_character << 4;
@@ -139,18 +139,18 @@ namespace npan
         return rt;
     }
 
-    void output_packet_to_console(const u_char *packet, int length)
+    void output_packet_to_console(const u_char *packet, u_int length)
     {
-        for (int i = 0; i < length; ++i)
+        for (u_int i = 0; i < length; ++i)
         {
             detail::print("{:02x} ", packet[i]);
         }
         detail::print("\n");
     }
 
-    void dump_packet_to_file(FILE *file, const u_char *packet, int length)
+    void dump_packet_to_file(FILE *file, const u_char *packet, u_int length)
     {
-        for (int i = 0; i < length; ++i)
+        for (u_int i = 0; i < length; ++i)
         {
             detail::print(file, "{:02x}", packet[i]);
         }

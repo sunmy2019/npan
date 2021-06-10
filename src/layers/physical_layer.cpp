@@ -34,7 +34,7 @@ namespace npan
         internet_layer(&data[14], prot);
     }
 
-    void analyze_packet(u_char *data, int length)
+    void analyze_packet(u_char *data, u_int length)
     {
         physical_layer(data);
     }
