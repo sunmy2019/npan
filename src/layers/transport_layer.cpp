@@ -57,7 +57,7 @@ namespace npan
         switch (flag)
         {
         case 0x02: // SYNC
-            fmt::print("Flag: SYNC\n");
+            detail::print("Flag: SYNC\n");
             // first handshake
             tcp_map<Ver>[tcps] = TCP_connection_status{++global_tcp_stream_no, seq, 0};
             tcp_map<Ver>[tcpr] = TCP_connection_status{++global_tcp_stream_no, 0, seq};
@@ -66,7 +66,7 @@ namespace npan
             break;
 
         case 0x12: // SYNC, ACK
-            fmt::print("Flag: SYNC, ACK\n");
+            detail::print("Flag: SYNC, ACK\n");
             // second handshake
 
             // if the first handshake is lost, we will fake one
@@ -88,7 +88,7 @@ namespace npan
             break;
 
         case 0x10: // ACK
-            fmt::print("Flag: ACK\n");
+            detail::print("Flag: ACK\n");
 
             init_ack = tcp_map<Ver>[tcps].init_ack;
             init_seq = tcp_map<Ver>[tcps].init_seq;
@@ -97,7 +97,7 @@ namespace npan
             { // if both finished, remove both tcps and tcpr
                 tcp_map<Ver>.erase(tcps);
                 tcp_map<Ver>.erase(tcpr);
-                fmt::print("Connection closed\n");
+                detail::print("Connection closed\n");
                 break;
             }
 
@@ -127,10 +127,10 @@ namespace npan
 
                 if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
                 {
-                    fmt::print("Package arrived after its buffer being pushed\n");
-                    fmt::print("Source port:      {}\n", source_port);
-                    fmt::print("Destination port: {}\n", dest_port);
-                    fmt::print("{:─^56}\n", "");
+                    detail::print("Package arrived after its buffer being pushed\n");
+                    detail::print("Source port:      {}\n", source_port);
+                    detail::print("Destination port: {}\n", dest_port);
+                    detail::print("{:─^56}\n", "");
                     return;
                 }
 
@@ -143,7 +143,7 @@ namespace npan
 
         case 0x18: // ACK, PUSH
 
-            fmt::print("Flag: ACK, PUSH\n");
+            detail::print("Flag: ACK, PUSH\n");
 
             if (tcp_map<Ver>.find(tcps) == tcp_map<Ver>.end() || tcp_map<Ver>.find(tcpr) == tcp_map<Ver>.end()) [[unlikely]]
             { // handshakes are all lost! Fill in whatever is usable
@@ -164,10 +164,10 @@ namespace npan
 
             if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
             {
-                fmt::print("Package arrived after its buffer being pushed\n");
-                fmt::print("Source port:      {}\n", source_port);
-                fmt::print("Destination port: {}\n", dest_port);
-                fmt::print("{:─^56}\n", "");
+                detail::print("Package arrived after its buffer being pushed\n");
+                detail::print("Source port:      {}\n", source_port);
+                detail::print("Destination port: {}\n", dest_port);
+                detail::print("{:─^56}\n", "");
                 return;
             }
 
@@ -179,7 +179,7 @@ namespace npan
             break;
 
         case 0x11: // FIN, ACK
-            fmt::print("Flag: FIN, ACK\n");
+            detail::print("Flag: FIN, ACK\n");
 
             // set a finish mark
             tcp_map<Ver>[tcps].finished = 1;
@@ -197,10 +197,10 @@ namespace npan
 
                 if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
                 {
-                    fmt::print("Package arrived after its buffer being pushed\n");
-                    fmt::print("Source port:      {}\n", source_port);
-                    fmt::print("Destination port: {}\n", dest_port);
-                    fmt::print("{:─^56}\n", "");
+                    detail::print("Package arrived after its buffer being pushed\n");
+                    detail::print("Source port:      {}\n", source_port);
+                    detail::print("Destination port: {}\n", dest_port);
+                    detail::print("{:─^56}\n", "");
                     return;
                 }
 
@@ -214,16 +214,16 @@ namespace npan
             { // if both finished, remove both tcps and tcpr
                 tcp_map<Ver>.erase(tcps);
                 tcp_map<Ver>.erase(tcpr);
-                fmt::print("Connection closed\n");
+                detail::print("Connection closed\n");
                 break;
             }
             break;
 
         case 0x04: // RST
-            fmt::print("Flag: RST\n");
-            fmt::print("Source port:      {}\n", source_port);
-            fmt::print("Destination port: {}\n", dest_port);
-            fmt::print("{:─^56}\n", "");
+            detail::print("Flag: RST\n");
+            detail::print("Source port:      {}\n", source_port);
+            detail::print("Destination port: {}\n", dest_port);
+            detail::print("{:─^56}\n", "");
             if (tcp_map<Ver>.find(tcps) != tcp_map<Ver>.end())
                 tcp_map<Ver>.erase(tcps);
             if (tcp_map<Ver>.find(tcpr) != tcp_map<Ver>.end())
@@ -234,18 +234,18 @@ namespace npan
             break;
         }
 
-        fmt::print("Relative seq {}, Absolute seq {}\n", seq - init_seq, seq);
-        fmt::print("Relative ack {}, Absolute ack {}\n", ack - init_ack, ack);
-        fmt::print("Source port:      {}\n", source_port);
-        fmt::print("Destination port: {}\n", dest_port);
-        fmt::print("Header length  {} bytes\n", header_length);
-        fmt::print("Payload length {} bytes\n", payload_length);
-        fmt::print("Window size    {} bytes\n", window);
+        detail::print("Relative seq {}, Absolute seq {}\n", seq - init_seq, seq);
+        detail::print("Relative ack {}, Absolute ack {}\n", ack - init_ack, ack);
+        detail::print("Source port:      {}\n", source_port);
+        detail::print("Destination port: {}\n", dest_port);
+        detail::print("Header length  {} bytes\n", header_length);
+        detail::print("Payload length {} bytes\n", payload_length);
+        detail::print("Window size    {} bytes\n", window);
 
         if (flag == 0x18) // PUSH
             tcp_map<Ver>[tcps].flush_buffer();
         else
-            fmt::print("{:─^56}\n", "");
+            detail::print("{:─^56}\n", "");
     }
 
     template <IP_ver V>
@@ -253,23 +253,23 @@ namespace npan
     {
         u_int source_port = GET_TWO_BYTE(0);
         u_int dest_port = GET_TWO_BYTE(2);
-        assert(length == GET_TWO_BYTE(4));
-        fmt::print("Source port:      {}\n", source_port);
-        fmt::print("Destination port: {}\n", dest_port);
-        fmt::print("Total length  {} bytes\n", length);
+        NPAN_WARNING(length == GET_TWO_BYTE(4), "Different length given by the Internet Layer: {} and UDP packet {}", length, GET_TWO_BYTE(4));
+        detail::print("Source port:      {}\n", source_port);
+        detail::print("Destination port: {}\n", dest_port);
+        detail::print("Total length  {} bytes\n", length);
 
         application_layer(&data[8], length - 8, Connection<Protocal::UDP, V>{source_ip, source_port, dest_ip, dest_port});
     }
 
     void ICMPv6_handler(u_char *data, IPv6_addr source_ip, IPv6_addr dest_ip, int length)
     {
-        fmt::print("{:─^56}\n", "");
+        detail::print("{:─^56}\n", "");
     }
 
     template <IP_ver V>
     void transport_layer(u_char *data, Protocal protocal, IP_addr<V> source_ip, IP_addr<V> dest_ip, u_int length)
     {
-        fmt::print("{:─^56}\n", " Transport layer ");
+        detail::print("{:─^56}\n", " Transport layer ");
         switch (protocal)
         {
         case Protocal::TCP:
@@ -284,11 +284,11 @@ namespace npan
             if constexpr (std::is_same_v<IP_addr<V>, IPv6_addr>)
                 ICMPv6_handler(data, source_ip, dest_ip, length);
             else
-                fmt::print("{:─^56}\n", "");
+                detail::print("{:─^56}\n", "");
             break;
 
         default:
-            fmt::print("{:─^56}\n", "");
+            detail::print("{:─^56}\n", "");
             break;
         }
     }

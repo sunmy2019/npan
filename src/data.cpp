@@ -1,7 +1,6 @@
 #include "npan-internal.h"
 #include <fstream>
-// #include <iostream>
-#include <cassert>
+
 namespace npan
 {
     Packet::Packet(Packet &&other) noexcept : data(other.data), length(other.length)
@@ -38,7 +37,7 @@ namespace npan
             while (iter != std::istreambuf_iterator<char>() && *iter != '\n')
             {
                 current_character = ('0' <= *iter && *iter <= '9') ? (*iter - '0') : (('a' <= *iter && *iter <= 'f') ? (*iter - 'a' + 10) : (*iter - 'A' + 10));
-                assert(current_character < 16); // otherwise unallowed character has appeared
+                NPAN_ASSERT(current_character < 16, "Unallowed character '{}'! (ascii: {})\n", *iter, (int)(*iter));
                 if (++current_position % 2)
                 {
                     tmp = current_character << 4;
@@ -87,7 +86,7 @@ namespace npan
             ++iter;
 
             // Now Entering third line
-            assert(*iter == '|');
+            NPAN_ASSERT(*iter == '|', "Wrong K12 format! Expecting '|' here, but got '{}'", *iter);
             ++iter; // now is '0'
             ++iter; // now is  ' '
             ++iter; // now is  ' '
@@ -106,7 +105,7 @@ namespace npan
                     continue;
                 }
                 current_character = ('0' <= *iter && *iter <= '9') ? (*iter - '0') : (('a' <= *iter && *iter <= 'f') ? (*iter - 'a' + 10) : (*iter - 'A' + 10));
-                assert(current_character < 16); // otherwise unallowed character has appeared
+                NPAN_ASSERT(current_character < 16, "Unallowed character '{}'! (ascii: {})\n", *iter, (int)(*iter));
                 if (++current_position % 2)
                 {
                     tmp = current_character << 4;
@@ -131,18 +130,18 @@ namespace npan
     {
         for (int i = 0; i < length; ++i)
         {
-            fmt::print("{:02x} ", packet[i]);
+            detail::print("{:02x} ", packet[i]);
         }
-        fmt::print("\n");
+        detail::print("\n");
     }
 
     void dump_packet_to_file(FILE *file, const u_char *packet, int length)
     {
         for (int i = 0; i < length; ++i)
         {
-            fmt::print(file, "{:02x}", packet[i]);
+            detail::print(file, "{:02x}", packet[i]);
         }
-        fmt::print(file, "\n");
+        detail::print(file, "\n");
     }
 
 } // namespace npan

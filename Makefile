@@ -27,7 +27,7 @@ endif
 
 npan: lib/libnpan.a
 
-$(OBJS): npan.h npan-internal.h | $(OUTDIR)
+$(OBJS): npan.h npan-internal.h output-routine.h data-structs.h | $(OUTDIR)
 
 $(OUTDIR):
 	mkdir -p $@

@@ -4,9 +4,9 @@ namespace npan
 {
     void physical_layer(u_char *data)
     {
-        fmt::print("{:─^56}\n", " Physical layer ");
-        fmt::print("Destination MAC address: {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}\n", data[0], data[1], data[2], data[3], data[4], data[5]);
-        fmt::print("Source MAC address:      {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}\n", data[6], data[7], data[8], data[9], data[10], data[11]);
+        detail::print("{:─^56}\n", " Physical layer ");
+        detail::print("Destination MAC address: {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}\n", data[0], data[1], data[2], data[3], data[4], data[5]);
+        detail::print("Source MAC address:      {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}\n", data[6], data[7], data[8], data[9], data[10], data[11]);
 
         Protocal prot;
 
@@ -14,24 +14,24 @@ namespace npan
         {
         case 0x0800:
             prot = Protocal::IPV4;
-            fmt::print("Protocal type: IPv4\n");
+            detail::print("Protocal type: IPv4\n");
             break;
         case 0x86dd:
             prot = Protocal::IPV6;
-            fmt::print("Protocal type: IPv6\n");
+            detail::print("Protocal type: IPv6\n");
             break;
         case 0x0806:
             prot = Protocal::ARP;
-            fmt::print("Protocal type: ARP\n");
+            detail::print("Protocal type: ARP\n");
             break;
 
         default:
-            fmt::print("Unsupported protocal type {:04x}\n", GET_TWO_BYTE(12));
-            fmt::print("{:─^56}\n", "");
+            detail::print("Unsupported protocal type {:04x}\n", GET_TWO_BYTE(12));
+            detail::print("{:─^56}\n", "");
             return;
         }
 
-        // fmt::print("{:─^56}\n", "");
+        // detail::print("{:─^56}\n", "");
 
         internet_layer(&data[14], prot);
     }
