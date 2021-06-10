@@ -2,6 +2,8 @@
 
 /* npan internal interface */
 #include "npan.h"
+#include <fmt/color.h>
+#include <fmt/compile.h>
 
 #define LEFT_SHIFT(number, n) (number << (8 * n))
 #define GET_TWO_BYTE(i) ((u_int16_t)(data[i] << 8) + (u_int16_t)data[i + 1])
@@ -133,7 +135,7 @@ namespace std
 template <>
 struct fmt::formatter<npan::IPv4_addr>
 {
-    constexpr auto parse(fmt::format_parse_context &ctx)
+    constexpr auto parse(fmt::format_parse_context &ctx) // does not support wide char stream
     {
         auto it = ctx.begin(), end = ctx.end();
 
@@ -144,8 +146,6 @@ struct fmt::formatter<npan::IPv4_addr>
         return it;
     }
 
-    // Formats the ip address using the parsed format specification (presentation)
-    // stored in this formatter.
     template <typename FormatContext>
     auto format(const npan::IPv4_addr &ip, FormatContext &ctx)
     {
@@ -157,7 +157,7 @@ struct fmt::formatter<npan::IPv4_addr>
 template <>
 struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
 {
-    constexpr auto parse(fmt::format_parse_context &ctx)
+    constexpr auto parse(fmt::format_parse_context &ctx) // does not support wide char stream
     {
         auto it = ctx.begin(), end = ctx.end();
 
@@ -168,12 +168,11 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
         return it;
     }
 
-    // Formats the ip address using the parsed format specification (presentation)
-    // stored in this formatter.
     template <typename FormatContext>
     auto format(const npan::IPv6_addr &ip, FormatContext &ctx)
     {
-        fmt::memory_buffer out;
+        fmt::memory_buffer buf;
+        auto back_inserter = std::back_inserter(buf);
 
         int status = 0;
         // 0: haven't met consecutive 0s
@@ -187,7 +186,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
             if (temp == 0 && status == 0)
             {
                 status = 1;
-                format_to(fmt::appender(out), "{::^{}}", "", i == 48 ? 2 : 1);
+                format_to(back_inserter, "{::^{}}", "", i == 48 ? 2 : 1);
             }
             else if (temp != 0 && status == 1)
             {
@@ -195,7 +194,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
             }
             if (status != 1)
             {
-                format_to(fmt::appender(out), "{:x}:", temp);
+                format_to(back_inserter, "{:x}:", temp);
             }
         }
 
@@ -206,7 +205,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
             if (temp == 0 && status == 0)
             {
                 status = 1;
-                format_to(fmt::appender(out), ":");
+                format_to(back_inserter, ":");
             }
             else if (temp != 0 && status == 1)
             {
@@ -214,11 +213,11 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
             }
             if (status != 1)
             {
-                format_to(fmt::appender(out), "{:x}{}", temp, i ? ':' : '\0');
+                format_to(back_inserter, FMT_COMPILE("{:x}{}"), temp, i ? ':' : '\0');
             }
         }
 
-        string_view sv{out.data(), out.size()};
+        string_view sv{buf.data(), buf.size()};
         return fmt::formatter<string_view>::format(sv, ctx);
     }
 };

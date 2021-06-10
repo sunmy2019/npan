@@ -53,6 +53,10 @@ run: main
 prof: run
 	gprof build/main gmon.out
 
+.PHONY: time
+time: build/test-k12
+	time --verbose build/test-k12 k12.txt >/dev/null
+
 .PHONY: clean
 clean:
 	-rm -rf *.out *.o *.a
