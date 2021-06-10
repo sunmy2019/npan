@@ -18,7 +18,7 @@ namespace npan
         Packet &operator=(const Packet &) = delete;
 
         Packet(Packet &&) noexcept;
-        Packet &operator=(Packet &&) = delete;
+        Packet &operator=(Packet &&) noexcept;
 
         ~Packet();
     };

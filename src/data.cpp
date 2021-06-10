@@ -8,6 +8,20 @@ namespace npan
         other.data = nullptr;
     }
 
+    Packet &Packet::operator=(Packet &&other) noexcept
+    {
+        // because this function never throw, we can release resources first
+        if (data)
+            delete[] data;
+
+        data = other.data;
+        length = other.length;
+
+        other.data = nullptr;
+        other.length = 0;
+        return *this;
+    }
+
     Packet::~Packet()
     {
         if (data)
@@ -47,7 +61,6 @@ namespace npan
                     tmp |= current_character;
                     *buffer++ = tmp;
                 }
-
                 ++iter;
             }
             current_position /= 2;
