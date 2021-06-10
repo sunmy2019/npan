@@ -2,8 +2,10 @@
 
 /* npan internal interface */
 #include "npan.h"
-#include <fmt/color.h>
-#include <fmt/compile.h>
+// #include <fmt/color.h>
+// #include <fmt/compile.h>
+
+// Note: using compile time format string would cause code bloat, we decide not to use here.
 
 #define LEFT_SHIFT(number, n) (number << (8 * n))
 #define GET_TWO_BYTE(i) ((u_int16_t)(data[i] << 8) + (u_int16_t)data[i + 1])
@@ -213,7 +215,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
             }
             if (status != 1)
             {
-                format_to(back_inserter, FMT_COMPILE("{:x}{}"), temp, i ? ':' : '\0');
+                format_to(back_inserter, "{:x}{}", temp, i ? ':' : '\0');
             }
         }
 
