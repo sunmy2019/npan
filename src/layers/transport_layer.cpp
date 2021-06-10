@@ -1,5 +1,4 @@
 #include "../npan-internal.h"
-#include <cassert>
 #include <unordered_map>
 
 namespace npan
@@ -127,7 +126,7 @@ namespace npan
 
                 if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
                 {
-                    detail::print("Package arrived after its buffer being pushed\n");
+                    detail::warning("Package arrived its buffer being pushed\n");
                     detail::print("Source port:      {}\n", source_port);
                     detail::print("Destination port: {}\n", dest_port);
                     detail::print("{:─^56}\n", "");
@@ -136,7 +135,6 @@ namespace npan
 
                 if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
                     buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
-                // output_packet_to_console(&data[header_length], payload_length);
                 memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
             }
             break;
@@ -164,7 +162,7 @@ namespace npan
 
             if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
             {
-                detail::print("Package arrived after its buffer being pushed\n");
+                detail::warning("Package arrived after its buffer being pushed\n");
                 detail::print("Source port:      {}\n", source_port);
                 detail::print("Destination port: {}\n", dest_port);
                 detail::print("{:─^56}\n", "");
@@ -197,7 +195,7 @@ namespace npan
 
                 if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
                 {
-                    detail::print("Package arrived after its buffer being pushed\n");
+                    detail::warning("Package arrived after its buffer being pushed\n");
                     detail::print("Source port:      {}\n", source_port);
                     detail::print("Destination port: {}\n", dest_port);
                     detail::print("{:─^56}\n", "");
@@ -220,7 +218,7 @@ namespace npan
             break;
 
         case 0x04: // RST
-            detail::print("Flag: RST\n");
+            detail::warning("Flag: RST\n");
             detail::print("Source port:      {}\n", source_port);
             detail::print("Destination port: {}\n", dest_port);
             detail::print("{:─^56}\n", "");

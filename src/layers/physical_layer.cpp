@@ -31,8 +31,6 @@ namespace npan
             return;
         }
 
-        // detail::print("{:─^56}\n", "");
-
         internet_layer(&data[14], prot);
     }
 

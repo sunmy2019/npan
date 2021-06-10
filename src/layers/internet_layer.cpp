@@ -18,7 +18,7 @@ namespace npan
         // omit differentiated field: data[1]
 
         detail::print("Total length {} bytes\n", total_length);
-        detail::print("Identification {}\n", GET_TWO_BYTE(4));
+        detail::print("Identification {:x}\n", GET_TWO_BYTE(4));
 
         // todo: handle flags and offsets
 

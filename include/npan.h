@@ -7,7 +7,7 @@
 
 namespace npan
 {
-    // represents a packet
+    // represents a packet, move only type
     struct Packet
     {
         u_char *data;
