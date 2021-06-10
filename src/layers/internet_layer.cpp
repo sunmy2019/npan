@@ -1,4 +1,5 @@
 #include "../npan-internal.h"
+#include <sys/types.h>
 
 namespace npan
 {
@@ -155,7 +156,47 @@ namespace npan
 
     void ARP_handler(u_char *data)
     {
-        
+        u_int hardware_type = GET_TWO_BYTE(0);
+        if (hardware_type != 1) [[unlikely]]
+        {
+            detail::print("Unsupport hardware type {}", hardware_type);
+            return;
+        }
+
+        u_int protocal_type = GET_TWO_BYTE(2);
+        u_int hardware_size = data[4];
+        u_int protocal_size = data[5];
+        u_int opcode = GET_TWO_BYTE(6);
+
+        NPAN_ASSERT(hardware_size == 6, "Mac Address length should be 6, got {}\n", hardware_size);
+
+        if (protocal_type != 0x0800) [[unlikely]]
+        { // not IPv4
+            detail::print("Unsupport protocal type {}", protocal_type);
+        }
+        else
+        { // IPv4
+
+            NPAN_WARNING(protocal_size == 4, "IP Address length should be 4 for IPv4, got {}\n", protocal_size);
+            MAC_addr sender_mac{GET_SIX_BYTE(8)};
+            IPv4_addr sender_ip{GET_FOUR_BYTE(14)};
+            MAC_addr target_mac{GET_SIX_BYTE(18)};
+            IPv4_addr target_ip{GET_FOUR_BYTE(24)};
+
+            switch (opcode)
+            {
+            case 0x01:
+                // Request
+                if (sender_ip == target_ip) [[unlikely]]
+                    detail::print("ARP Announcement for {}\nSender MAC address {}\n", sender_ip, sender_mac);
+                else
+                    detail::print("Who is {}? Tell {}\nSender MAC address {}\n", target_ip, sender_ip, sender_mac);
+                break;
+            case 0x02:
+                // Reply
+                detail::print("{} is at {}\nTarget IP {}, MAC {}\n", sender_ip, sender_mac, target_ip, target_mac);
+            }
+        }
     }
 
     void internet_layer(u_char *data, Protocal protocal)
@@ -174,6 +215,7 @@ namespace npan
 
         case Protocal::ARP:
             ARP_handler(data);
+            detail::print("{:─^56}\n", "");
             break;
 
         default:

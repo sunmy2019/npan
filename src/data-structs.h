@@ -3,6 +3,7 @@
 #define LEFT_SHIFT(number, n) (number << (8 * n))
 #define GET_TWO_BYTE(i) ((u_int16_t)(data[i] << 8) + (u_int16_t)data[i + 1])
 #define GET_FOUR_BYTE(i) (((u_int32_t)data[i] << 24) | ((u_int32_t)data[i + 1] << 16) | ((u_int32_t)data[i + 2] << 8) | (u_int32_t)data[i + 3])
+#define GET_SIX_BYTE(i) (((u_int64_t)GET_FOUR_BYTE(i) << 16) + GET_TWO_BYTE(i + 4))
 
 namespace npan
 {
@@ -49,6 +50,11 @@ namespace npan
 
     template <IP_ver V>
     void application_layer(u_char *data, u_int length, Connection<Protocal::UDP, V>);
+
+    struct MAC_addr
+    {
+        u_int64_t addr;
+    };
 
     template <>
     struct IP_addr<IP_ver::FOUR>
@@ -123,6 +129,29 @@ namespace std
 #undef NPAN_BITXOR_
 #undef NPAN_BITXOR__
 } // namespace std
+
+template <>
+struct fmt::formatter<npan::MAC_addr>
+{
+    constexpr auto parse(fmt::format_parse_context &ctx) // does not support wide char stream
+    {
+        auto it = ctx.begin(), end = ctx.end();
+
+        if (it != end && *it != '}')
+            throw format_error("invalid format");
+
+        // Return an iterator past the end of the parsed range:
+        return it;
+    }
+
+    template <typename FormatContext>
+    auto format(const npan::MAC_addr &mac, FormatContext &ctx)
+    {
+        return format_to(ctx.out(), "{:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
+                         (mac.addr >> 40) & 0xff, (mac.addr >> 32) & 0xff, (mac.addr >> 24) & 0xff,
+                         (mac.addr >> 16) & 0xff, (mac.addr >> 8) & 0xff, (mac.addr) & 0xff);
+    }
+};
 
 template <>
 struct fmt::formatter<npan::IPv4_addr>

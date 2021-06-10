@@ -25,21 +25,21 @@ namespace npan
         template <typename... Args>
         void inline print(Args &&...args)
         {
-            fmt::print(args...);
+            fmt::print(std::forward<Args>(args)...);
         }
         template <typename... Args>
         void inline print(FILE *file, Args &&...args)
         {
-            fmt::print(file, args...);
+            fmt::print(file, std::forward<Args>(args)...);
         }
 
         template <typename... Args>
         void inline warning(Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
-            fmt::print(fg(fmt::color::red), args...);
+            fmt::print(fg(fmt::color::red), std::forward<Args>(args)...);
 #else
-            fmt::print(args...);
+            fmt::print(std::forward<Args>(args)...);
 #endif
         }
 
@@ -47,9 +47,9 @@ namespace npan
         void inline warning(FILE *file, Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
-            fmt::print(file, fg(fmt::color::red), args...);
+            fmt::print(file, fg(fmt::color::red), std::forward<Args>(args)...);
 #else
-            fmt::print(file, args...);
+            fmt::print(file, std::forward<Args>(args)...);
 #endif
         }
 
@@ -57,9 +57,9 @@ namespace npan
         void inline error(Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
-            fmt::print(stderr, fg(fmt::color::red), args...);
+            fmt::print(stderr, fg(fmt::color::red), std::forward<Args>(args)...);
 #else
-            fmt::print(stderr, args...);
+            fmt::print(stderr, std::forward<Args>(args)...);
 #endif
         }
 

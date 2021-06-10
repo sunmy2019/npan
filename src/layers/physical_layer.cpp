@@ -5,8 +5,10 @@ namespace npan
     void physical_layer(u_char *data)
     {
         detail::print("{:─^56}\n", " Physical layer ");
-        detail::print("Destination MAC address: {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}\n", data[0], data[1], data[2], data[3], data[4], data[5]);
-        detail::print("Source MAC address:      {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}\n", data[6], data[7], data[8], data[9], data[10], data[11]);
+        MAC_addr dest_mac{GET_SIX_BYTE(0)};
+        MAC_addr source_mac{GET_SIX_BYTE(6)};
+        detail::print("Destination MAC address: {}\n", dest_mac);
+        detail::print("Source MAC address:      {}\n", source_mac);
 
         Protocal prot;
 
