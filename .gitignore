@@ -11,6 +11,7 @@ build/
 # Other files and folders
 .settings/
 compile_commands.json
+perf*
 
 # Executables
 *.swf

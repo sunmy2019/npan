@@ -190,7 +190,7 @@ namespace npan
                 if (sender_ip == target_ip) [[unlikely]]
                     detail::print("ARP Announcement for {}\nSender MAC address {}\n", sender_ip, sender_mac);
                 else
-                    detail::print("Who is {}? Tell {}\nSender MAC address {}\n", target_ip, sender_ip, sender_mac);
+                    detail::print("Who is {} ? Tell {}\nSender MAC address {}\n", target_ip, sender_ip, sender_mac);
                 break;
             case 0x02:
                 // Reply
