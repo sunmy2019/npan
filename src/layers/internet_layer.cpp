@@ -1,5 +1,4 @@
 #include "../npan-internal.h"
-#include <sys/types.h>
 
 namespace npan
 {

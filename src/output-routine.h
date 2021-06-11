@@ -1,4 +1,3 @@
-#include <cassert> // for __assert_fail
 #define NPAN_COLOR_OUTPUT
 
 #ifdef NPAN_COLOR_OUTPUT
@@ -6,7 +5,7 @@
 #endif
 
 // #include <fmt/compile.h>
-// Note: using compile time format string would cause code bloat, we decide not to use here.
+// Note: using compile time format string would cause potential code bloat, we decide not to use here.
 
 #ifdef NDEBUG
 #define NPAN_ASSERT(cond, args...) void(0)
@@ -23,18 +22,18 @@ namespace npan
     namespace detail
     {
         template <typename... Args>
-        void inline print(Args &&...args)
+        void print(Args &&...args)
         {
             fmt::print(std::forward<Args>(args)...);
         }
         template <typename... Args>
-        void inline print(FILE *file, Args &&...args)
+        void print(FILE *file, Args &&...args)
         {
             fmt::print(file, std::forward<Args>(args)...);
         }
 
         template <typename... Args>
-        void inline warning(Args &&...args)
+        void warning(Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
             fmt::print(fg(fmt::color::red), std::forward<Args>(args)...);
@@ -44,7 +43,7 @@ namespace npan
         }
 
         template <typename... Args>
-        void inline warning(FILE *file, Args &&...args)
+        void warning(FILE *file, Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
             fmt::print(file, fg(fmt::color::red), std::forward<Args>(args)...);
@@ -54,7 +53,7 @@ namespace npan
         }
 
         template <typename... Args>
-        void inline error(Args &&...args)
+        void error(Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
             fmt::print(stderr, fg(fmt::color::red), std::forward<Args>(args)...);
@@ -62,6 +61,5 @@ namespace npan
             fmt::print(stderr, std::forward<Args>(args)...);
 #endif
         }
-
     }
 };

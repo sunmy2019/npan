@@ -30,7 +30,6 @@ namespace npan
     void TCP_handler(u_char *data, IP_addr<Ver> source_ip, IP_addr<Ver> dest_ip, u_int length)
     {
         using TCP_connection = Connection<Protocal::TCP, Ver>;
-        // output_packet_to_console(data, length);
         u_int source_port = GET_TWO_BYTE(0);
         u_int dest_port = GET_TWO_BYTE(2);
         u_int32_t seq = GET_FOUR_BYTE(4);
