@@ -1,6 +1,6 @@
 #pragma once
 
-/* npan internal data structs and APIs */
+/* npan internal data structures and APIs */
 
 #include "npan.h"
 
@@ -31,21 +31,29 @@ namespace npan
         UNKNOWN
     };
 
+    struct MAC_addr
+    {
+        u_int64_t addr;
+    };
+
     enum class IP_ver
     {
         FOUR,
         SIX
     };
 
-    void physical_layer(u_char *data);
-
-    void internet_layer(u_char *data, Protocal);
-
     template <IP_ver v>
     struct IP_addr;
 
+    using IPv4_addr = IP_addr<IP_ver::FOUR>;
+    using IPv6_addr = IP_addr<IP_ver::SIX>;
+
     template <Protocal P, IP_ver V>
     struct Connection;
+
+    void physical_layer(u_char *data);
+
+    void internet_layer(u_char *data, Protocal);
 
     template <IP_ver V>
     void transport_layer(u_char *data, Protocal, IP_addr<V> source_ip, IP_addr<V> dest_ip, u_int length);
@@ -54,11 +62,6 @@ namespace npan
 
     template <IP_ver V>
     void application_layer(u_char *data, u_int length, Connection<Protocal::UDP, V>);
-
-    struct MAC_addr
-    {
-        u_int64_t addr;
-    };
 
     template <>
     struct IP_addr<IP_ver::FOUR>
@@ -90,9 +93,6 @@ namespace npan
 
         friend std::strong_ordering operator<=>(const Connection &, const Connection &) = default;
     };
-
-    using IPv4_addr = IP_addr<IP_ver::FOUR>;
-    using IPv6_addr = IP_addr<IP_ver::SIX>;
 }
 
 namespace std
@@ -211,7 +211,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
             if (temp == 0 && status == 0)
             {
                 status = 1;
-                format_to(back_inserter, "{::^{}}", "", i == 48 ? 2 : 1);
+                format_to(back_inserter, "{}", &"::"[i != 48]); // output "::" if i == 48, otherwise ":"
             }
             else if (temp != 0 && status == 1)
             {
@@ -238,7 +238,7 @@ struct fmt::formatter<npan::IPv6_addr> : public fmt::formatter<string_view>
             }
             if (status != 1)
             {
-                format_to(back_inserter, "{:x}{}", temp, i ? ':' : '\0');
+                format_to(back_inserter, "{:x}{}", temp, i ? ":" : "");
             }
         }
 
