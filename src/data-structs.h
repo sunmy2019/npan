@@ -42,7 +42,7 @@ namespace npan
         SIX
     };
 
-    template <IP_ver v>
+    template <IP_ver V>
     struct IP_addr;
 
     using IPv4_addr = IP_addr<IP_ver::FOUR>;
