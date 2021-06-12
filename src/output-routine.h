@@ -39,34 +39,45 @@ namespace npan
             fmt::print(file, fmt, std::forward<Args>(args)...);
         }
 
+#ifdef NPAN_COLOR_OUTPUT
+
         template <typename S, typename... Args>
         void warning(const S &fmt, Args &&...args)
         {
-#ifdef NPAN_COLOR_OUTPUT
+
             fmt::print(fg(fmt::color::red), fmt, std::forward<Args>(args)...);
-#else
-            fmt::print(fmt, std::forward<Args>(args)...);
-#endif
         }
 
         template <typename S, typename... Args>
         void warning(FILE *file, const S &fmt, Args &&...args)
         {
-#ifdef NPAN_COLOR_OUTPUT
             fmt::print(file, fg(fmt::color::red), fmt, std::forward<Args>(args)...);
-#else
-            fmt::print(file, fmt, std::forward<Args>(args)...);
-#endif
         }
 
         template <typename S, typename... Args>
         void error(const S &fmt, Args &&...args)
         {
-#ifdef NPAN_COLOR_OUTPUT
             fmt::print(stderr, fg(fmt::color::red), fmt, std::forward<Args>(args)...);
-#else
-            fmt::print(stderr, fmt, std::forward<Args>(args)...);
-#endif
         }
+
+#else
+        template <typename... Args>
+        void warning(fmt::format_string<Args...> fmt, Args &&...args)
+        {
+            fmt::print(fmt, std::forward<Args>(args)...);
+        }
+
+        template <typename... Args>
+        void warning(FILE *file, fmt::format_string<Args...> fmt, Args &&...args)
+        {
+            fmt::print(file, fmt, std::forward<Args>(args)...);
+        }
+
+        template <typename... Args>
+        void error(fmt::format_string<Args...> fmt, Args &&...args)
+        {
+            fmt::print(stderr, fmt, std::forward<Args>(args)...);
+        }
+#endif
     }
 };
