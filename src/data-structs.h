@@ -1,3 +1,7 @@
+#pragma once
+
+/* npan internal data structs and APIs */
+
 #include "npan.h"
 
 #define LEFT_SHIFT(number, n) (number << (8 * n))

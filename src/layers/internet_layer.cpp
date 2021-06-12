@@ -6,7 +6,7 @@ namespace npan
     {
         u_int header_length = (data[0] & 15) << 2;
         u_int total_length = GET_TWO_BYTE(2);
-        // u_int flags_offset = GET_TWO_BYTE(6);
+
         Protocal prot = Protocal::UNKNOWN;
 
         IPv4_addr source_ip{GET_FOUR_BYTE(12)};
@@ -66,7 +66,7 @@ namespace npan
 
         detail::print("IP version {}\n", data[0] >> 4);
         detail::print("Traffic class {:x}\n", (GET_TWO_BYTE(0) & 0xff0) >> 4);
-        detail::print("Flow label {:x}\n", (u_int32_t)((data[1] & 15) << 16) + GET_TWO_BYTE(2));
+        detail::print("Flow label {:x}\n", (u_int32_t)((data[1] & 0xf) << 16) + GET_TWO_BYTE(2));
         detail::print("Payload length {} bytes\n", payload_length);
 
         detail::print("Hop limit {}\n", hop_limit);

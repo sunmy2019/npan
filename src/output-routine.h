@@ -1,3 +1,9 @@
+#pragma once
+
+/* npan output routine */
+
+/* internal API of printing, warning and assertion */
+
 #define NPAN_COLOR_OUTPUT
 
 #ifdef NPAN_COLOR_OUTPUT
