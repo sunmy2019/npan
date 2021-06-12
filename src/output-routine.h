@@ -28,7 +28,7 @@ namespace npan
     namespace detail
     {
         template <typename... Args>
-        void print(fmt::format_string<Args...> fmt, Args&&... args)
+        void print(fmt::format_string<Args...> fmt, Args &&...args)
         {
             fmt::print(fmt, std::forward<Args>(args)...);
         }
@@ -40,7 +40,7 @@ namespace npan
         }
 
         template <typename S, typename... Args>
-        void warning(const S& fmt, Args &&...args)
+        void warning(const S &fmt, Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
             fmt::print(fg(fmt::color::red), fmt, std::forward<Args>(args)...);
@@ -50,7 +50,7 @@ namespace npan
         }
 
         template <typename S, typename... Args>
-        void warning(FILE *file, const S& fmt, Args &&...args)
+        void warning(FILE *file, const S &fmt, Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
             fmt::print(file, fg(fmt::color::red), fmt, std::forward<Args>(args)...);
@@ -60,7 +60,7 @@ namespace npan
         }
 
         template <typename S, typename... Args>
-        void error(const S& fmt, Args &&...args)
+        void error(const S &fmt, Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
             fmt::print(stderr, fg(fmt::color::red), fmt, std::forward<Args>(args)...);
