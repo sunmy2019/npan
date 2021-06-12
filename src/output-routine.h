@@ -28,43 +28,44 @@ namespace npan
     namespace detail
     {
         template <typename... Args>
-        void print(Args &&...args)
+        void print(fmt::format_string<Args...> fmt, Args&&... args)
         {
-            fmt::print(std::forward<Args>(args)...);
-        }
-        template <typename... Args>
-        void print(FILE *file, Args &&...args)
-        {
-            fmt::print(file, std::forward<Args>(args)...);
+            fmt::print(fmt, std::forward<Args>(args)...);
         }
 
         template <typename... Args>
-        void warning(Args &&...args)
+        void print(FILE *file, fmt::format_string<Args...> fmt, Args &&...args)
+        {
+            fmt::print(file, fmt, std::forward<Args>(args)...);
+        }
+
+        template <typename S, typename... Args>
+        void warning(const S& fmt, Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
-            fmt::print(fg(fmt::color::red), std::forward<Args>(args)...);
+            fmt::print(fg(fmt::color::red), fmt, std::forward<Args>(args)...);
 #else
-            fmt::print(std::forward<Args>(args)...);
+            fmt::print(fmt, std::forward<Args>(args)...);
 #endif
         }
 
-        template <typename... Args>
-        void warning(FILE *file, Args &&...args)
+        template <typename S, typename... Args>
+        void warning(FILE *file, const S& fmt, Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
-            fmt::print(file, fg(fmt::color::red), std::forward<Args>(args)...);
+            fmt::print(file, fg(fmt::color::red), fmt, std::forward<Args>(args)...);
 #else
-            fmt::print(file, std::forward<Args>(args)...);
+            fmt::print(file, fmt, std::forward<Args>(args)...);
 #endif
         }
 
-        template <typename... Args>
-        void error(Args &&...args)
+        template <typename S, typename... Args>
+        void error(const S& fmt, Args &&...args)
         {
 #ifdef NPAN_COLOR_OUTPUT
-            fmt::print(stderr, fg(fmt::color::red), std::forward<Args>(args)...);
+            fmt::print(stderr, fg(fmt::color::red), fmt, std::forward<Args>(args)...);
 #else
-            fmt::print(stderr, std::forward<Args>(args)...);
+            fmt::print(stderr, fmt, std::forward<Args>(args)...);
 #endif
         }
     }
