@@ -44,7 +44,6 @@ namespace npan
         template <typename S, typename... Args>
         void warning(const S &fmt, Args &&...args)
         {
-
             fmt::print(fg(fmt::color::red), fmt, std::forward<Args>(args)...);
         }
 
