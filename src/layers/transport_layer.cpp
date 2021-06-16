@@ -19,8 +19,9 @@ namespace npan
         void flush_buffer()
         {
             buffer_start_seq += buffer.size();
-            // move the whole buffer into application layer
-            application_layer(std::move(buffer), tcp_stream_no);
+            if (buffer.size())
+                // move the whole buffer into application layer
+                application_layer(std::move(buffer), tcp_stream_no);
         }
     };
 
@@ -69,8 +70,8 @@ namespace npan
             detail::print("Flag: SYNC, ACK\n");
             // second handshake
 
-            // if the first handshake is lost, we will fake one
-            if (tcp_map<Ver>.find(tcps) == tcp_map<Ver>.end() && tcp_map<Ver>.find(tcpr) == tcp_map<Ver>.end()) [[unlikely]]
+            // if the first handshake is lost or the last connection is not erased, we will make a new one
+            if ((tcp_map<Ver>.find(tcps) == tcp_map<Ver>.end() || tcp_map<Ver>.find(tcpr) == tcp_map<Ver>.end()) || (tcp_map<Ver>[tcps].finished || tcp_map<Ver>[tcpr].finished)) [[unlikely]]
             {
                 tcp_map<Ver>[tcpr].started = 1; // start other
                 tcp_map<Ver>[tcpr].tcp_stream_no = ++global_tcp_stream_no;
@@ -80,6 +81,8 @@ namespace npan
             }
 
             tcp_map<Ver>[tcps].started = 1; // start self
+            // detail::warning("{} {}\n", tcp_map<Ver>[tcpr].started, tcp_map<Ver>[tcps].started);
+
             tcp_map<Ver>[tcps].init_seq = seq;
             tcp_map<Ver>[tcpr].init_ack = seq;
 
@@ -107,18 +110,21 @@ namespace npan
 
             init_ack = tcp_map<Ver>[tcps].init_ack;
             init_seq = tcp_map<Ver>[tcps].init_seq;
-
+            // detail::warning("{} {}\n", tcp_map<Ver>[tcpr].started, tcp_map<Ver>[tcps].started);
             if (!tcp_map<Ver>[tcps].started) [[unlikely]]
-            { // third handshake
+            {
                 if (ack == init_ack + 1 && seq == init_seq + 1) [[likely]]
-                {
+                { // third handshake, second handshake is not lost
                     tcp_map<Ver>[tcps].started = 1;
                     break;
                 }
                 else
                 {
-                    NPAN_WARNING(0, "Third handshake was lost.\n");
-                    tcp_map<Ver>[tcps].started = 1;
+                    NPAN_WARNING(0, "Second or Third handshake was lost.\n");
+                    tcp_map<Ver>[tcps] = TCP_connection_status{tcp_map<Ver>[tcps].tcp_stream_no, seq, ack, 1 /*started*/, 0, 0, /*broken*/ true};
+                    tcp_map<Ver>[tcpr] = TCP_connection_status{tcp_map<Ver>[tcpr].tcp_stream_no, ack, seq, 1 /*started*/, 0, 0, /*broken*/ true};
+                    init_ack = ack;
+                    init_seq = seq;
                 }
             }
 
@@ -143,7 +149,7 @@ namespace npan
 
                 if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
                     buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
-                memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
+                std::memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
             }
             break;
 
@@ -161,16 +167,20 @@ namespace npan
             init_seq = tcp_map<Ver>[tcps].init_seq;
 
             if (!tcp_map<Ver>[tcps].started) [[unlikely]]
-            { // third handshake
+            {
                 if (ack == init_ack + 1 && seq == init_seq + 1) [[likely]]
-                {
+                { // third handshake, second handshake is not lost
                     tcp_map<Ver>[tcps].started = 1;
+                    // detail::warning("Start Two");
                     break;
                 }
                 else
                 {
-                    NPAN_WARNING(0, "Third handshake was lost.\n");
-                    tcp_map<Ver>[tcps].started = 1;
+                    NPAN_WARNING(0, "Second or Third handshake was lost.\n");
+                    tcp_map<Ver>[tcps] = TCP_connection_status{tcp_map<Ver>[tcps].tcp_stream_no, seq, ack, 1 /*started*/, 0, 0, /*broken*/ true};
+                    tcp_map<Ver>[tcpr] = TCP_connection_status{tcp_map<Ver>[tcpr].tcp_stream_no, ack, seq, 1 /*started*/, 0, 0, /*broken*/ true};
+                    init_ack = ack;
+                    init_seq = seq;
                 }
             }
 
@@ -193,7 +203,7 @@ namespace npan
 
             if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
                 buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
-            memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
+            std::memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
             break;
 
         case 0x11: // FIN, ACK
@@ -225,13 +235,13 @@ namespace npan
                 if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
                     buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
                 // output_packet_to_console(&data[header_length], payload_length);
-                memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
+                std::memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
             }
 
             if (tcp_map<Ver>[tcpr].finished && tcp_map<Ver>[tcps].finished) [[unlikely]]
-            { // if both finished, remove both tcps and tcpr
-                tcp_map<Ver>.erase(tcps);
-                tcp_map<Ver>.erase(tcpr);
+            { // if both finished, flush the buffer
+                tcp_map<Ver>[tcps].flush_buffer();
+                tcp_map<Ver>[tcpr].flush_buffer();
                 detail::print("Connection closed\n");
                 break;
             }
@@ -260,7 +270,7 @@ namespace npan
         detail::print("Payload length {} bytes\n", payload_length);
         detail::print("Window size    {} bytes\n", window);
 
-        if (flag == 0x18) // PUSH
+        if (flag & 0x8) // PUSH
             tcp_map<Ver>[tcps].flush_buffer();
         else
             detail::print("{:─^56}\n", "");
