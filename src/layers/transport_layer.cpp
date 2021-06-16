@@ -134,7 +134,7 @@ namespace npan
 
                 if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
                 {
-                    detail::warning("Package arrived its buffer being pushed, {}, {}\n", *buffer_start_seq, seq);
+                    detail::warning("Package arrived its buffer being pushed\nBuffer Seq: {}, Packet Seq {}\n", *buffer_start_seq, seq);
                     detail::print("Source port:      {}\n", source_port);
                     detail::print("Destination port: {}\n", dest_port);
                     detail::print("{:─^56}\n", "");
@@ -184,7 +184,7 @@ namespace npan
 
             if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
             {
-                detail::warning("Package arrived its buffer being pushed, {}, {}\n", *buffer_start_seq, seq);
+                detail::warning("Package arrived its buffer being pushed\nBuffer Seq: {}, Packet Seq {}\n", *buffer_start_seq, seq);
                 detail::print("Source port:      {}\n", source_port);
                 detail::print("Destination port: {}\n", dest_port);
                 detail::print("{:─^56}\n", "");
@@ -215,7 +215,7 @@ namespace npan
 
                 if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
                 {
-                    detail::warning("Package arrived its buffer being pushed, {}, {}\n", *buffer_start_seq, seq);
+                    detail::warning("Package arrived its buffer being pushed\nBuffer Seq: {}, Packet Seq {}\n", *buffer_start_seq, seq);
                     detail::print("Source port:      {}\n", source_port);
                     detail::print("Destination port: {}\n", dest_port);
                     detail::print("{:─^56}\n", "");
