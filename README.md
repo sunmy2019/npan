@@ -1,6 +1,6 @@
 # An network packact analyzer (May 29 2021)
 
-It reads packets (in hex-stream form) from files, then does the analysis. [fmtlib 7.1.3](https://fmt.dev/latest/index.html) is needed.
+It reads packets (in hex-stream form) from files, then does the analysis. Linux and [fmtlib 7.1.3](https://fmt.dev/latest/index.html) is needed.
 
 Currently I only implemented the following protocals:
 
