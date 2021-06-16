@@ -9,6 +9,14 @@
 #define GET_FOUR_BYTE(i) (((u_int32_t)data[i] << 24) | ((u_int32_t)data[i + 1] << 16) | ((u_int32_t)data[i + 2] << 8) | (u_int32_t)data[i + 3])
 #define GET_SIX_BYTE(i) (((u_int64_t)GET_FOUR_BYTE(i) << 16) + GET_TWO_BYTE(i + 4))
 
+// Little endian
+#define GET_TWO_BYTE_LE(da, i) ((u_int16_t)(da[i + 1] << 8) + (u_int16_t)da[i])
+#define GET_FOUR_BYTE_LE(da, i) (((u_int32_t)da[i + 3] << 24) | ((u_int32_t)da[i + 2] << 16) | ((u_int32_t)da[i + 1] << 8) | (u_int32_t)da[i])
+
+// Big endian
+#define GET_TWO_BYTE_BE(da, i) ((u_int16_t)(da[i] << 8) + (u_int16_t)da[i + 1])
+#define GET_FOUR_BYTE_BE(da, i) (((u_int32_t)da[i] << 24) | ((u_int32_t)da[i + 1] << 16) | ((u_int32_t)da[i + 2] << 8) | (u_int32_t)da[i + 3])
+
 namespace npan
 {
     // about the protocals

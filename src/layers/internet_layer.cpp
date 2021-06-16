@@ -34,6 +34,9 @@ namespace npan
             prot = Protocal::UDP;
             detail::print("Protocal: UDP\n");
             break;
+        case 0x02:
+            detail::print("Protocal: IGMP\n");
+            break;
         default:
             detail::print("Unsupported protocal.\n");
             break;

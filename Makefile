@@ -44,10 +44,17 @@ build/main: lib/libnpan.a ./main.o | $(OUTDIR)
 build/test-k12: lib/libnpan.a ./test-k12.o | $(OUTDIR) 
 	g++-11 build/test-k12.o -Lbuild/lib -lnpan -o $@ $(LINKFLAGS)
 
+build/test-pcap: lib/libnpan.a ./test-pcap.o | $(OUTDIR) 
+	g++-11 build/test-pcap.o -Lbuild/lib -lnpan -o $@ $(LINKFLAGS)
+
 
 .PHONY: run
 run: main
 	build/main example_input.txt
+
+.PHONY: run-pcap
+run-pcap: build/test-pcap
+	build/test-pcap 123.pcap
 
 .PHONY: prof
 prof: run

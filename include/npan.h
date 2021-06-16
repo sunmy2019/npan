@@ -28,6 +28,8 @@ namespace npan
 
     std::vector<Packet> read_packet_from_K12(const char *filename);
 
+    std::vector<Packet> read_packet_from_pcap(const char *filename);
+
     void output_packet_to_console(const u_char *packet, u_int length);
 
     void dump_packet_to_file(FILE *file, const u_char *packet, u_int length);

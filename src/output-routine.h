@@ -14,7 +14,8 @@
 // Note: using compile time format string would cause potential code bloat, we decide not to use here.
 
 #ifdef NDEBUG
-#define NPAN_ASSERT(cond, args...) void(0)
+#define NPAN_ASSERT(cond, args...) \
+    (static_cast<bool>(cond) ? void(0) : (npan::detail::error(args), throw))
 #define NPAN_WARNING(cond, args...) void(0)
 #else
 #define NPAN_ASSERT(cond, args...) \

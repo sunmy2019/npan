@@ -1,5 +1,8 @@
 #include "npan-internal.h"
+#include <fcntl.h>
 #include <fstream>
+#include <sys/mman.h>
+#include <sys/stat.h>
 
 namespace npan
 {
@@ -65,7 +68,7 @@ namespace npan
             }
             current_position /= 2;
             u_char *data = new u_char[current_position + 1];
-            memcpy(data, buf, current_position);
+            std::memcpy(data, buf, current_position);
             rt.emplace_back(data, current_position);
         }
         delete[] buf;
@@ -132,10 +135,52 @@ namespace npan
             }
             current_position /= 2;
             u_char *data = new u_char[current_position + 1];
-            memcpy(data, buf, current_position);
+            std::memcpy(data, buf, current_position);
             rt.emplace_back(data, current_position);
         }
         delete[] buf;
+        return rt;
+    }
+
+    std::vector<Packet> read_packet_from_pcap(const char *filename)
+    {
+        std::vector<Packet> rt;
+        int fd = ::open(filename, O_RDONLY);
+        NPAN_ASSERT(fd >= 0, "Cannot open \"{}\"\n", filename);
+        size_t file_length;
+
+        {
+            struct stat filestat;
+            ::fstat(fd, &filestat);
+            NPAN_ASSERT(filestat.st_size > 0, "File \"{}\"'s size < 0\n", filename);
+            file_length = filestat.st_size;
+        }
+
+        void *const start_addr = ::mmap(NULL, file_length, PROT_READ, MAP_PRIVATE, fd, 0);
+        ::close(fd);
+
+        NPAN_ASSERT(start_addr != MAP_FAILED, "mmap faild.\n");
+
+        u_char *buffer = static_cast<u_char *>(start_addr);
+
+        NPAN_ASSERT(GET_FOUR_BYTE_BE(buffer, 0) == 0xd4c3b2a1, "Only little endian is supported now.\n");
+        NPAN_WARNING(GET_TWO_BYTE_LE(buffer, 4) == 2 && GET_TWO_BYTE_LE(buffer, 6) == 4, "Only PACAP version 2.4 is supported.\n");
+
+        buffer += 24;
+
+        while (buffer + 16 <= static_cast<u_char *>(start_addr) + file_length)
+        { // still have something to extract
+            int packet_length = GET_FOUR_BYTE_LE(buffer, 8);
+            NPAN_WARNING(packet_length > 0, "PCAP format error.\n");
+            u_char *data = new u_char[packet_length];
+            std::memcpy(data, buffer + 16, packet_length);
+            rt.emplace_back(data, packet_length);
+            buffer += 16 + packet_length;
+        }
+
+        NPAN_WARNING(buffer == static_cast<u_char *>(start_addr) + file_length, "PCAP format error.\n");
+
+        ::munmap(start_addr, file_length);
         return rt;
     }
 
