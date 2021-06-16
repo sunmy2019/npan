@@ -13,6 +13,7 @@ namespace npan
         bool started = 0;
         bool finished = 0;
         u_int32_t buffer_start_seq = 0; // absolute
+        bool broken_connection = false;
         std::vector<u_char> buffer;
 
         void flush_buffer()
@@ -42,6 +43,7 @@ namespace npan
 
         std::vector<u_char> *buffer = nullptr;
         u_int32_t *buffer_start_seq = nullptr;
+        bool broken_connection = false;
 
         flag &= 0x0fff;
 
@@ -88,8 +90,12 @@ namespace npan
         case 0x10: // ACK
             detail::print("Flag: ACK\n");
 
-            init_ack = tcp_map<Ver>[tcps].init_ack;
-            init_seq = tcp_map<Ver>[tcps].init_seq;
+            if (tcp_map<Ver>.find(tcps) == tcp_map<Ver>.end() || tcp_map<Ver>.find(tcpr) == tcp_map<Ver>.end()) [[unlikely]]
+            { // handshakes are all lost! Fill in whatever is usable
+                tcp_map<Ver>[tcps] = TCP_connection_status{++global_tcp_stream_no, seq, ack, 1 /*started*/, 0, 0, /*broken*/ true};
+                tcp_map<Ver>[tcpr] = TCP_connection_status{++global_tcp_stream_no, ack, seq, 1 /*started*/, 0, 0, /*broken*/ true};
+                broken_connection = true;
+            }
 
             if (tcp_map<Ver>[tcpr].finished && tcp_map<Ver>[tcps].finished) [[unlikely]]
             { // if both finished, remove both tcps and tcpr
@@ -99,19 +105,20 @@ namespace npan
                 break;
             }
 
+            init_ack = tcp_map<Ver>[tcps].init_ack;
+            init_seq = tcp_map<Ver>[tcps].init_seq;
+
             if (!tcp_map<Ver>[tcps].started) [[unlikely]]
-            {
+            { // third handshake
                 if (ack == init_ack + 1 && seq == init_seq + 1) [[likely]]
-                { // third handshake
+                {
                     tcp_map<Ver>[tcps].started = 1;
                     break;
                 }
                 else
-                { // handshakes are all lost! Fill in whatever is usable
-                    tcp_map<Ver>[tcps] = TCP_connection_status{++global_tcp_stream_no, seq, ack, 1 /* stream started */};
-                    tcp_map<Ver>[tcpr] = TCP_connection_status{++global_tcp_stream_no, ack, seq, 1 /* stream started */};
-                    init_ack = tcp_map<Ver>[tcps].init_ack;
-                    init_seq = tcp_map<Ver>[tcps].init_seq;
+                {
+                    NPAN_WARNING(0, "Third handshake was lost.\n");
+                    tcp_map<Ver>[tcps].started = 1;
                 }
             }
 
@@ -120,12 +127,14 @@ namespace npan
                 buffer_start_seq = &tcp_map<Ver>[tcps].buffer_start_seq;
                 buffer = &tcp_map<Ver>[tcps].buffer;
 
-                if (*buffer_start_seq == 0) [[unlikely]] // first arrival of this tcp connection
-                    *buffer_start_seq = init_seq + 1;
+                broken_connection = tcp_map<Ver>[tcps].broken_connection;
+
+                if (*buffer_start_seq == 0) [[unlikely]]               // first arrival of this tcp connection
+                    *buffer_start_seq = init_seq + !broken_connection; // bool->int
 
                 if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
                 {
-                    detail::warning("Package arrived its buffer being pushed\n");
+                    detail::warning("Package arrived its buffer being pushed, {}, {}\n", *buffer_start_seq, seq);
                     detail::print("Source port:      {}\n", source_port);
                     detail::print("Destination port: {}\n", dest_port);
                     detail::print("{:─^56}\n", "");
@@ -144,24 +153,38 @@ namespace npan
 
             if (tcp_map<Ver>.find(tcps) == tcp_map<Ver>.end() || tcp_map<Ver>.find(tcpr) == tcp_map<Ver>.end()) [[unlikely]]
             { // handshakes are all lost! Fill in whatever is usable
-                tcp_map<Ver>[tcps] = TCP_connection_status{++global_tcp_stream_no, seq, ack, 1 /* stream started */};
-                tcp_map<Ver>[tcpr] = TCP_connection_status{++global_tcp_stream_no, ack, seq, 1 /* stream started */};
-                init_ack = tcp_map<Ver>[tcps].init_ack;
-                init_seq = tcp_map<Ver>[tcps].init_seq;
+                tcp_map<Ver>[tcps] = TCP_connection_status{++global_tcp_stream_no, seq, ack, 1 /*started*/, 0, 0, /*broken*/ true};
+                tcp_map<Ver>[tcpr] = TCP_connection_status{++global_tcp_stream_no, ack, seq, 1 /*started*/, 0, 0, /*broken*/ true};
             }
 
             init_ack = tcp_map<Ver>[tcps].init_ack;
             init_seq = tcp_map<Ver>[tcps].init_seq;
 
+            if (!tcp_map<Ver>[tcps].started) [[unlikely]]
+            { // third handshake
+                if (ack == init_ack + 1 && seq == init_seq + 1) [[likely]]
+                {
+                    tcp_map<Ver>[tcps].started = 1;
+                    break;
+                }
+                else
+                {
+                    NPAN_WARNING(0, "Third handshake was lost.\n");
+                    tcp_map<Ver>[tcps].started = 1;
+                }
+            }
+
             buffer_start_seq = &tcp_map<Ver>[tcps].buffer_start_seq;
             buffer = &tcp_map<Ver>[tcps].buffer;
 
-            if (*buffer_start_seq == 0) [[unlikely]] // first arrival of this tcp connection
-                *buffer_start_seq = init_seq + 1;
+            broken_connection = tcp_map<Ver>[tcps].broken_connection;
+
+            if (*buffer_start_seq == 0) [[unlikely]]               // first arrival of this tcp connection
+                *buffer_start_seq = init_seq + !broken_connection; // bool->int
 
             if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
             {
-                detail::warning("Package arrived after its buffer being pushed\n");
+                detail::warning("Package arrived its buffer being pushed, {}, {}\n", *buffer_start_seq, seq);
                 detail::print("Source port:      {}\n", source_port);
                 detail::print("Destination port: {}\n", dest_port);
                 detail::print("{:─^56}\n", "");
@@ -170,9 +193,7 @@ namespace npan
 
             if (*buffer_start_seq + buffer->size() < seq + payload_length) [[likely]]
                 buffer->resize(seq - *buffer_start_seq + payload_length); // needs to enlarge
-            // output_packet_to_console(&data[header_length], payload_length);
             memcpy(&((*buffer)[seq - *buffer_start_seq]), &data[header_length], payload_length);
-
             break;
 
         case 0x11: // FIN, ACK
@@ -189,12 +210,12 @@ namespace npan
                 buffer_start_seq = &tcp_map<Ver>[tcps].buffer_start_seq;
                 buffer = &tcp_map<Ver>[tcps].buffer;
 
-                if (*buffer_start_seq == 0) [[unlikely]] // first arrival of this tcp connection
-                    *buffer_start_seq = init_seq + 1;
+                if (*buffer_start_seq == 0) [[unlikely]]               // first arrival of this tcp connection
+                    *buffer_start_seq = init_seq + !broken_connection; // bool->int
 
                 if (*buffer_start_seq > seq) [[unlikely]] // package arrived after its buffer being PUSHed
                 {
-                    detail::warning("Package arrived after its buffer being pushed\n");
+                    detail::warning("Package arrived its buffer being pushed, {}, {}\n", *buffer_start_seq, seq);
                     detail::print("Source port:      {}\n", source_port);
                     detail::print("Destination port: {}\n", dest_port);
                     detail::print("{:─^56}\n", "");
