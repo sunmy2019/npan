@@ -258,6 +258,17 @@ namespace npan
                 tcp_map<Ver>.erase(tcpr);
             return;
 
+        case 0x14: // RST, ACK
+            detail::warning("Flag: RST, ACK\n");
+            detail::print("Source port:      {}\n", source_port);
+            detail::print("Destination port: {}\n", dest_port);
+            detail::print("{:─^56}\n", "");
+            if (tcp_map<Ver>.find(tcps) != tcp_map<Ver>.end())
+                tcp_map<Ver>.erase(tcps);
+            if (tcp_map<Ver>.find(tcpr) != tcp_map<Ver>.end())
+                tcp_map<Ver>.erase(tcpr);
+            return;
+
         default:
             break;
         }
