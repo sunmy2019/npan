@@ -1,6 +1,8 @@
 #include "npan-internal.h"
+#include "npan.h"
 #include <fcntl.h>
 #include <fstream>
+#include <new>
 #include <sys/mman.h>
 #include <sys/stat.h>
 
@@ -170,9 +172,16 @@ namespace npan
 
         while (buffer + 16 <= static_cast<u_char *>(start_addr) + file_length)
         { // still have something to extract
-            int packet_length = GET_FOUR_BYTE_LE(buffer, 8);
-            NPAN_WARNING(packet_length > 0, "PCAP format error.\n");
-            u_char *data = new u_char[packet_length];
+            u_int packet_length = GET_FOUR_BYTE_LE(buffer, 8);
+            u_char *data;
+            try
+            {
+                data = new u_char[packet_length];
+            }
+            catch (std::bad_alloc &)
+            {
+                NPAN_ASSERT(0, "Allocation failure. Packet length is {} bytes.\n", packet_length);
+            }
             std::memcpy(data, buffer + 16, packet_length);
             rt.emplace_back(data, packet_length);
             buffer += 16 + packet_length;

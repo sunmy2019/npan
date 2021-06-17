@@ -29,7 +29,7 @@ namespace npan
     static std::unordered_map<Connection<Protocal::TCP, Ver>, TCP_connection_status> tcp_map; // records the connection
 
     template <IP_ver Ver>
-    void TCP_handler(u_char *data, IP_addr<Ver> source_ip, IP_addr<Ver> dest_ip, u_int length)
+    void TCP_handler(const u_char *data, IP_addr<Ver> source_ip, IP_addr<Ver> dest_ip, u_int length)
     {
         using TCP_connection = Connection<Protocal::TCP, Ver>;
         u_int source_port = GET_TWO_BYTE(0);
@@ -288,7 +288,7 @@ namespace npan
     }
 
     template <IP_ver V>
-    void UDP_handler(u_char *data, IP_addr<V> source_ip, IP_addr<V> dest_ip, u_int length)
+    void UDP_handler(const u_char *data, IP_addr<V> source_ip, IP_addr<V> dest_ip, u_int length)
     {
         u_int source_port = GET_TWO_BYTE(0);
         u_int dest_port = GET_TWO_BYTE(2);
@@ -300,13 +300,13 @@ namespace npan
         application_layer(&data[8], length - 8, Connection<Protocal::UDP, V>{source_ip, source_port, dest_ip, dest_port});
     }
 
-    void ICMPv6_handler(u_char *data, IPv6_addr source_ip, IPv6_addr dest_ip, u_int length)
+    void ICMPv6_handler(const u_char *data, IPv6_addr source_ip, IPv6_addr dest_ip, u_int length)
     {
         detail::print("{:─^56}\n", "");
     }
 
     template <IP_ver V>
-    void transport_layer(u_char *data, Protocal protocal, IP_addr<V> source_ip, IP_addr<V> dest_ip, u_int length)
+    void transport_layer(const u_char *data, Protocal protocal, IP_addr<V> source_ip, IP_addr<V> dest_ip, u_int length)
     {
         detail::print("{:─^56}\n", " Transport layer ");
         switch (protocal)
@@ -332,7 +332,7 @@ namespace npan
         }
     }
 
-    template void transport_layer(u_char *, Protocal, IPv4_addr, IPv4_addr, u_int);
-    template void transport_layer(u_char *, Protocal, IPv6_addr, IPv6_addr, u_int);
+    template void transport_layer(const u_char *, Protocal, IPv4_addr, IPv4_addr, u_int);
+    template void transport_layer(const u_char *, Protocal, IPv6_addr, IPv6_addr, u_int);
 
 } // namespace npan

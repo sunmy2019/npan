@@ -59,17 +59,17 @@ namespace npan
     template <Protocal P, IP_ver V>
     struct Connection;
 
-    void physical_layer(u_char *data);
+    void physical_layer(const u_char *data);
 
-    void internet_layer(u_char *data, Protocal);
+    void internet_layer(const u_char *data, Protocal);
 
     template <IP_ver V>
-    void transport_layer(u_char *data, Protocal, IP_addr<V> source_ip, IP_addr<V> dest_ip, u_int length);
+    void transport_layer(const u_char *data, Protocal, IP_addr<V> source_ip, IP_addr<V> dest_ip, u_int length);
 
     void application_layer(std::vector<u_char> data, u_int tcp_stream_no);
 
     template <IP_ver V>
-    void application_layer(u_char *data, u_int length, Connection<Protocal::UDP, V>);
+    void application_layer(const u_char *data, u_int length, Connection<Protocal::UDP, V>);
 
     template <>
     struct IP_addr<IP_ver::FOUR>

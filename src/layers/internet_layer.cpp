@@ -2,7 +2,7 @@
 
 namespace npan
 {
-    void IPv4_handler(u_char *data)
+    void IPv4_handler(const u_char *data)
     {
         u_int header_length = (data[0] & 15) << 2;
         u_int total_length = GET_TWO_BYTE(2);
@@ -53,7 +53,8 @@ namespace npan
 
         transport_layer(&data[header_length], prot, source_ip, dest_ip, total_length - header_length);
     }
-    void IPv6_handler(u_char *data)
+
+    void IPv6_handler(const u_char *data)
     {
         u_int payload_length = GET_TWO_BYTE(4);
         u_int next_header = data[6];
@@ -156,7 +157,7 @@ namespace npan
         transport_layer(&data[header_offset], prot, source_ip, dest_ip, payload_length + 40 - header_offset);
     }
 
-    void ARP_handler(u_char *data)
+    void ARP_handler(const u_char *data)
     {
         u_int hardware_type = GET_TWO_BYTE(0);
         if (hardware_type != 1) [[unlikely]]
@@ -201,7 +202,7 @@ namespace npan
         }
     }
 
-    void internet_layer(u_char *data, Protocal protocal)
+    void internet_layer(const u_char *data, Protocal protocal)
     {
         detail::print("{:─^56}\n", " Internet layer ");
 

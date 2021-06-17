@@ -2,7 +2,7 @@
 
 namespace npan
 {
-    void physical_layer(u_char *data)
+    void physical_layer(const u_char *data)
     {
         detail::print("{:─^56}\n", " Physical layer ");
         MAC_addr dest_mac{GET_SIX_BYTE(0)};
@@ -36,7 +36,7 @@ namespace npan
         internet_layer(&data[14], prot);
     }
 
-    void analyze_packet(u_char *data, u_int length)
+    void analyze_packet(const u_char *data, u_int length)
     {
         physical_layer(data);
     }

@@ -11,7 +11,7 @@ namespace npan
     }
 
     template <IP_ver V>
-    void application_layer(u_char *data, u_int length, Connection<Protocal::UDP, V>)
+    void application_layer(const u_char *data, u_int length, Connection<Protocal::UDP, V>)
     {
         detail::print("{:─^56}\n", " Application layer ");
         detail::print("UDP stream with payload length: {} bytes\n", length);
@@ -19,6 +19,6 @@ namespace npan
         detail::print("{:─^56}\n", "");
     }
 
-    template void application_layer(u_char *, u_int, Connection<Protocal::UDP, IP_ver::FOUR>);
-    template void application_layer(u_char *, u_int, Connection<Protocal::UDP, IP_ver::SIX>);
+    template void application_layer(const u_char *, u_int, Connection<Protocal::UDP, IP_ver::FOUR>);
+    template void application_layer(const u_char *, u_int, Connection<Protocal::UDP, IP_ver::SIX>);
 } // namespace npan
