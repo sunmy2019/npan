@@ -120,7 +120,7 @@ namespace npan
                 }
                 else
                 {
-                    NPAN_WARNING(0, "Second or Third handshake was lost.\n");
+                    detail::warning("Second or Third handshake was lost.\n");
                     tcp_map<Ver>[tcps] = TCP_connection_status{tcp_map<Ver>[tcps].tcp_stream_no, seq, ack, 1 /*started*/, 0, 0, /*broken*/ true};
                     tcp_map<Ver>[tcpr] = TCP_connection_status{tcp_map<Ver>[tcpr].tcp_stream_no, ack, seq, 1 /*started*/, 0, 0, /*broken*/ true};
                     init_ack = ack;
@@ -176,7 +176,7 @@ namespace npan
                 }
                 else
                 {
-                    NPAN_WARNING(0, "Second or Third handshake was lost.\n");
+                    detail::warning("Second or Third handshake was lost.\n");
                     tcp_map<Ver>[tcps] = TCP_connection_status{tcp_map<Ver>[tcps].tcp_stream_no, seq, ack, 1 /*started*/, 0, 0, /*broken*/ true};
                     tcp_map<Ver>[tcpr] = TCP_connection_status{tcp_map<Ver>[tcpr].tcp_stream_no, ack, seq, 1 /*started*/, 0, 0, /*broken*/ true};
                     init_ack = ack;
