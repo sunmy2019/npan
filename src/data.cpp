@@ -1,5 +1,6 @@
 #include "npan-internal.h"
 #include "npan.h"
+#include "output-routine.h"
 #include <fcntl.h>
 #include <fstream>
 #include <new>
@@ -165,26 +166,57 @@ namespace npan
 
         u_char *buffer = static_cast<u_char *>(start_addr);
 
-        NPAN_ASSERT(GET_FOUR_BYTE_BE(buffer, 0) == 0xd4c3b2a1, "Only little endian is supported now.\n");
-        NPAN_WARNING(GET_TWO_BYTE_LE(buffer, 4) == 2 && GET_TWO_BYTE_LE(buffer, 6) == 4, "Only PACAP version 2.4 is supported.\n");
+        if (GET_FOUR_BYTE_LE(buffer, 0) == 0xa1b2c3d4) [[likely]]
+        {
+            // Little endian
+            NPAN_WARNING(GET_TWO_BYTE_LE(buffer, 4) == 2 && GET_TWO_BYTE_LE(buffer, 6) == 4, "Only PACAP version 2.4 is supported.\n");
 
-        buffer += 24;
+            buffer += 24;
 
-        while (buffer + 16 <= static_cast<u_char *>(start_addr) + file_length)
-        { // still have something to extract
-            u_int packet_length = GET_FOUR_BYTE_LE(buffer, 8);
-            u_char *data;
-            try
-            {
-                data = new u_char[packet_length];
+            while (buffer + 16 <= static_cast<u_char *>(start_addr) + file_length)
+            { // still have something to extract
+                u_int packet_length = GET_FOUR_BYTE_LE(buffer, 8);
+                u_char *data;
+                try
+                {
+                    data = new u_char[packet_length];
+                }
+                catch (std::bad_alloc &)
+                {
+                    NPAN_ASSERT(0, "Allocation failure. Packet length is {} bytes.\n", packet_length);
+                }
+                std::memcpy(data, buffer + 16, packet_length);
+                rt.emplace_back(data, packet_length);
+                buffer += 16 + packet_length;
             }
-            catch (std::bad_alloc &)
-            {
-                NPAN_ASSERT(0, "Allocation failure. Packet length is {} bytes.\n", packet_length);
+        }
+        else if (GET_FOUR_BYTE_BE(buffer, 0) == 0xa1b2c3d4) [[likely]]
+        {
+            // Big endian
+            NPAN_WARNING(GET_TWO_BYTE_BE(buffer, 4) == 2 && GET_TWO_BYTE_BE(buffer, 6) == 4, "Only PACAP version 2.4 is supported.\n");
+
+            buffer += 24;
+
+            while (buffer + 16 <= static_cast<u_char *>(start_addr) + file_length)
+            { // still have something to extract
+                u_int packet_length = GET_FOUR_BYTE_BE(buffer, 8);
+                u_char *data;
+                try
+                {
+                    data = new u_char[packet_length];
+                }
+                catch (std::bad_alloc &)
+                {
+                    NPAN_ASSERT(0, "Allocation failure. Packet length is {} bytes.\n", packet_length);
+                }
+                std::memcpy(data, buffer + 16, packet_length);
+                rt.emplace_back(data, packet_length);
+                buffer += 16 + packet_length;
             }
-            std::memcpy(data, buffer + 16, packet_length);
-            rt.emplace_back(data, packet_length);
-            buffer += 16 + packet_length;
+        }
+        else
+        {
+            NPAN_ASSERT(0, "Unknown endianess.\n");
         }
 
         NPAN_WARNING(buffer == static_cast<u_char *>(start_addr) + file_length, "PCAP format error.\n");
