@@ -28,14 +28,15 @@ namespace npan
 {
     namespace detail
     {
+        // this API would change in next release of fmtlib, will change later
         template <typename... Args>
-        void print(fmt::format_string<Args...> fmt, Args &&...args)
+        void print(fmt::string_view fmt, Args &&...args)
         {
             fmt::print(fmt, std::forward<Args>(args)...);
         }
 
         template <typename... Args>
-        void print(FILE *file, fmt::format_string<Args...> fmt, Args &&...args)
+        void print(FILE *file, fmt::string_view fmt, Args &&...args)
         {
             fmt::print(file, fmt, std::forward<Args>(args)...);
         }
