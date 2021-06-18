@@ -1,9 +1,6 @@
 #include "npan-internal.h"
-#include "npan.h"
-#include "output-routine.h"
 #include <fcntl.h>
 #include <fstream>
-#include <new>
 #include <sys/mman.h>
 #include <sys/stat.h>
 
