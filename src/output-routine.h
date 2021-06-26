@@ -5,7 +5,7 @@
 
 /* internal API of printing, warning and assertion */
 
-// #define NPAN_COLOR_OUTPUT
+#define NPAN_COLOR_OUTPUT
 
 #ifdef NPAN_COLOR_OUTPUT
 #include <fmt/color.h>
@@ -68,7 +68,7 @@ namespace npan
 
         template <typename... Args>
         void warning(FILE *file, fmt::format_string<Args...> fmt, Args &&...args)
-        { // since we rarely use warning, we can bear with this overhead
+        { // since we (should) rarely use warning, we can bear this cost
             Device_type dv(file->_fileno);
             if (dv)
                 fmt::print(file, fg(fmt::color::red), fmt::string_view(fmt), std::forward<Args>(args)...);
