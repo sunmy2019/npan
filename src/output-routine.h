@@ -1,6 +1,6 @@
 #pragma once
 #include <map>
-#include <sys/stat.h>
+#include <unistd.h>
 /* npan output routine */
 
 /* internal API of printing, warning and assertion */
@@ -28,20 +28,15 @@ namespace npan
         // records device type when initializing
         struct Device_type
         {
-            bool is_character_device;
+            bool is_tty;
             operator bool()
             {
-                return is_character_device;
+                return is_tty;
             }
-            Device_type(int fd)
-            {
-                struct stat s;
-                fstat(fd, &s);
-                is_character_device = S_ISCHR(s.st_mode);
-            }
+            Device_type(int fd) : is_tty(isatty(fd)) {}
         };
 
-        inline Device_type stdout_type{1}, stderr_type{2};
+        inline Device_type stdout_type{fileno(stdout)}, stderr_type{fileno(stderr)};
 
         template <typename... Args>
         void print(const fmt::format_string<Args...> fmt, Args &&...args)
